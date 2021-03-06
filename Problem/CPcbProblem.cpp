@@ -1,0 +1,78 @@
+#include "CPcbProblem.h"
+#include "CPcbProblemLoader.h"
+
+
+CPcbProblem::CPcbProblem(int iBoardX, int iBoardY, std::vector<int> vPoints) {
+    i_board_size_x = iBoardX;
+    i_board_size_y = iBoardY;
+    vSetPoints(std::move(vPoints));
+
+    s_file_name = nullptr;
+}
+
+CPcbProblem::CPcbProblem(std::string sFileName) {
+    s_file_name = std::move(sFileName);
+
+    i_board_size_x = 0;
+    i_board_size_y = 0;
+    i_paths_quantity = 0;
+    pi_points = nullptr;
+}
+
+CPcbProblem::~CPcbProblem() {
+    v_deallocate_matrix(pi_points, i_paths_quantity);
+}
+
+void CPcbProblem::vLoadFromFile() {
+    auto cLoader = CPcbProblemLoader(this);
+    cLoader.vLoad();
+}
+
+void CPcbProblem::vSetBoard(int iX, int iY) {
+    i_board_size_x = iX;
+    i_board_size_y = iY;
+}
+
+void CPcbProblem::vSetPoints(std::vector<int> vPoints) {
+    i_paths_quantity = vPoints.size() / MATRIX_COLS;
+    v_allocate_matrix(&pi_points, MATRIX_COLS, i_paths_quantity);
+
+    for (int ii = 0; ii < i_paths_quantity; ii++) {
+        for (int jj = 0; jj < MATRIX_COLS; jj++) {
+            pi_points[ii][jj] = vPoints.at(ii * MATRIX_COLS + jj);
+        }
+    }
+}
+
+std::string CPcbProblem::sGetFile() {
+    return s_file_name;
+}
+
+void CPcbProblem::v_deallocate_matrix(int **piMatrix, int iRows) {
+    for (int ii = 0; ii < iRows; ii++) {
+        delete piMatrix[ii];
+    }
+    delete piMatrix;
+}
+
+void CPcbProblem::v_allocate_matrix(int ***piMatrix, int iColumns, int iRows) {
+    *piMatrix = new int *[iRows];
+    for (int ii = 0; ii < iRows; ii++) {
+        (*piMatrix)[ii] = new int[iColumns];
+    }
+}
+
+std::string CPcbProblem::s_get_points() {
+    std::string s_pcb_problem;
+    for (int i = 0; i < i_paths_quantity; i++) {
+        for (int j = 0; j < MATRIX_COLS; j++) {
+            s_pcb_problem += std::to_string(pi_points[i][j]) + " ";
+        }
+        s_pcb_problem += "\n";
+    }
+    return s_pcb_problem;
+}
+
+std::string CPcbProblem::sToString() {
+    return "Board size: " + std::to_string(i_board_size_x) + " x " + std::to_string(i_board_size_y) + "\n" + s_get_points();
+}
