@@ -5,6 +5,11 @@
 #include "CPath.h"
 
 #define VIOLATION_TYPES 5
+#define K1 0
+#define K2 1
+#define K3 2
+#define K4 3
+#define K5 4
 
 class CIndividual {
 
@@ -34,7 +39,7 @@ private:
     int i_get_paths_outside();
     int i_get_length_outside();
 
-    void v_set_random_paths(int iMaxStep);
+    void v_set_random_paths();
     void v_bake();
     void v_set_violations();
 

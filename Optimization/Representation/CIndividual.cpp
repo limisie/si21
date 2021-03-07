@@ -17,23 +17,59 @@ CIndividual::~CIndividual() {
 }
 
 void CIndividual::vInitializeRandomPaths() {
-    int i_default_max_step = std::max(pc_problem->iGetBoardDimension(true), pc_problem->iGetBoardDimension(false));
-    v_set_random_paths(i_default_max_step);
+    v_set_random_paths();
     v_bake();
     v_set_violations();
 }
 
-void CIndividual::v_set_random_paths(int iMaxStep) {
+void CIndividual::v_set_random_paths() {
     for (int ii = 0; ii < pc_problem->iGetPathsQuantity(); ++ii) {
-        pc_paths[ii]->vSetRandomPath(iMaxStep);
+        pc_paths[ii]->vSetRandomPath(pc_problem->iGetBoardDimension(true), pc_problem->iGetBoardDimension(false));
     }
 }
 
 void CIndividual::v_bake() {
+    int i_current_x, i_current_y, i_new_position_x, i_new_position_y, i_direction, i_step = 0;
+
     for (int ii = 0; ii < pc_problem->iGetPathsQuantity(); ++ii) {
+        i_current_x = pc_paths[ii]->iGetStartPoints(true);
+        i_current_y = pc_paths[ii]->iGetStartPoints(false);
+        i_new_position_x = i_current_x;
+        i_new_position_y = i_current_y;
+
         for (int jj = 0; jj < pc_paths[ii]->iGetSegmentsQuantity(); ++jj) {
-            //TODO: bejkowanie
-            return;
+            i_current_x = i_new_position_x;
+            i_current_y = i_new_position_y;
+
+            i_direction = get<0> (pc_paths[ii]->iGetSegment(jj));
+            i_step = get<1> (pc_paths[ii]->iGetSegment(jj));
+
+            switch (i_direction) {
+                case UP:
+                    i_new_position_y += i_step;
+                    for (int kk = i_current_y + 1; kk <= i_new_position_y; ++kk) {
+                        pi_board[i_current_x][kk] += 1;
+                    }
+                    break;
+                case RIGHT:
+                    i_new_position_x += i_step;
+                    for (int kk = i_current_x + 1; kk <= i_new_position_x; ++kk) {
+                        pi_board[kk][i_current_y] += 1;
+                    }
+                    break;
+                case DOWN:
+                    i_new_position_y -= i_step;
+                    for (int kk = i_current_y - 1; kk >= i_new_position_y; --kk) {
+                        pi_board[i_current_x][kk] += 1;
+                    }
+                    break;
+                case LEFT:
+                    i_new_position_x -= i_step;
+                    for (int kk = i_current_x + 1; kk >= i_new_position_x; --kk) {
+                        pi_board[kk][i_current_y] += 1;
+                    }
+                    break;
+            }
         }
     }
 }
