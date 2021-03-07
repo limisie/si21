@@ -84,8 +84,29 @@ void CIndividual::v_bake() {
     }
 }
 
+//k1 - liczba przecięć,
+//k2 - sumaryczna długość ścieżek,
+//k3 - sumaryczna liczba segmentów tworzących ścieżki.
+//k4 - liczba ścieżek poza płytką,
+//k5 - sumaryczna długość części ścieżek poza płytką.
+
 void CIndividual::v_set_violations() {
-    //TODO: ocena osobnika
+    int i_board_x = pc_problem->iGetBoardDimension(true);
+    int i_board_y = pc_problem->iGetBoardDimension(false);
+    int i_paths = pc_problem->iGetPathsQuantity();
+
+    for (int ii = 0; ii < i_board_y; ++ii) {
+        for (int jj = 0; jj < i_board_x; ++jj) {
+            if(pi_board[jj][ii] > 1) {
+                pi_violations[K1] += pi_board[jj][ii] - 1;
+            }
+        }
+    }
+
+    for (int ii = 0; ii < i_paths; ++ii) {
+        pi_violations[K3] += pc_paths[ii]->iGetSegmentsQuantity();
+        pi_violations[K2] += pc_paths[ii]->iGetPathLength();
+    }
 }
 
 void CIndividual::v_deallocate_matrix(int **piMatrix, int iRows) {
@@ -160,7 +181,7 @@ CPath CIndividual::cGetPath(int id) {
 }
 
 std::string CIndividual::sToString() {
-    return s_get_points();
+    return s_get_points() +"fitness: " + std::to_string(d_fitness) + "\n";
 }
 
 double CIndividual::dGetFitness() const {

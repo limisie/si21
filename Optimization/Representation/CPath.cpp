@@ -93,7 +93,12 @@ void CPath::vSetRandomPath(int iMaxX, int iMaxY) {
                 std::tuple<int, int> t_segment(i_direction, i_step);
                 v_path.push_back(t_segment);
             }
+            i_path_length += i_step;
         }
     }
 
+}
+
+int CPath::iGetPathLength() {
+    return i_path_length;
 }

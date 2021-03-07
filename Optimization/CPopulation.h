@@ -11,8 +11,6 @@ public:
     ~CPopulation();
 
     void vInitRandomPopulation();
-    int iGetSize() const;
-    CIndividual *pcGetIndividual(int iIndex);
 
 private:
     int i_population_size;
@@ -20,6 +18,11 @@ private:
     CIndividual **pc_individuals;
 
     void v_initialize_individuals();
+    void v_initialize_paths();
+
+public:
+    int iGetSize() const;
+    CIndividual *pcGetIndividual(int iIndex);
 };
 
 

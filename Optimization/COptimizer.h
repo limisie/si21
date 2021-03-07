@@ -16,8 +16,12 @@ public:
     COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize);
     ~COptimizer();
 
-    double dGetMaladjustmentGrade(int iIndividual);
-    double dGetFitnessFunction(int iIndividual);
+    void vInitRandomPopulation();
+    void vGadePopulation();
+    void vShowPopulation();
+
+    double dGetAdjustmentGrade(int iIndividual);
+    double dGetFitness(int iIndividual);
 
 private:
     CPcbProblem *pc_problem;
@@ -26,6 +30,7 @@ private:
     double d_best_individual_grade;
 
     void v_grade_individual(int iIndividual);
+
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H

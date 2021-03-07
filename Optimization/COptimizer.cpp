@@ -1,3 +1,4 @@
+#include <iostream>
 #include "COptimizer.h"
 
 COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize) {
@@ -10,6 +11,22 @@ COptimizer::~COptimizer() {
     pc_problem = nullptr;
     delete pc_population;
     pd_penalties = nullptr;
+}
+
+void COptimizer::vInitRandomPopulation() {
+    pc_population->vInitRandomPopulation();
+}
+
+void COptimizer::vGadePopulation() {
+    for (int ii = 0; ii < pc_population->iGetSize(); ++ii) {
+        v_grade_individual(ii);
+    }
+}
+
+void COptimizer::vShowPopulation() {
+    for (int ii = 0; ii < pc_population->iGetSize(); ++ii) {
+        std::cout << pc_population->pcGetIndividual(ii)->sToString() << std::endl;
+    }
 }
 
 void COptimizer::v_grade_individual(int iIndividual) {
@@ -29,10 +46,10 @@ void COptimizer::v_grade_individual(int iIndividual) {
     delete pi_violations;
 }
 
-double COptimizer::dGetMaladjustmentGrade(int iIndividual) {
-    return pc_population->pcGetIndividual(iIndividual)->dGetFitness();
+double COptimizer::dGetAdjustmentGrade(int iIndividual) {
+    return pc_population->pcGetIndividual(iIndividual)->dGetFitness() / d_best_individual_grade;
 }
 
-double COptimizer::dGetFitnessFunction(int iIndividual) {
-    return pc_population->pcGetIndividual(iIndividual)->dGetFitness() / d_best_individual_grade;
+double COptimizer::dGetFitness(int iIndividual) {
+    return pc_population->pcGetIndividual(iIndividual)->dGetFitness();
 }

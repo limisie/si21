@@ -33,12 +33,6 @@ private:
     int *pi_violations;
     double d_fitness;
 
-    int i_get_crossings();
-    int i_get_length();
-    int i_get_segments();
-    int i_get_paths_outside();
-    int i_get_length_outside();
-
     void v_set_random_paths();
     void v_bake();
     void v_set_violations();

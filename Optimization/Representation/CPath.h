@@ -22,6 +22,7 @@ public:
     int iGetStartPoints(bool dimension) const;
     std::tuple<int, int> iGetSegment(int iSegmentId);
     int iGetSegmentsQuantity();
+    int iGetPathLength();
     static std::vector<std::tuple<int, int>> vGetPath();
     void vSetPath(std::vector<std::tuple<int, int>> vPath);
 
@@ -30,6 +31,8 @@ private:
     int i_start_y;
     int i_end_x;
     int i_end_y;
+
+    int i_path_length;
 
     std::vector<std::tuple<int, int>> v_path;
 };

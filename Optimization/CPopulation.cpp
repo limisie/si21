@@ -1,3 +1,4 @@
+#include <iostream>
 #include "CPopulation.h"
 
 CPopulation::CPopulation(CPcbProblem *pcProblem, int iSize) {
@@ -12,9 +13,8 @@ CPopulation::~CPopulation() {
 }
 
 void CPopulation::vInitRandomPopulation() {
-    for (int ii = 0; ii < i_population_size; ++ii) {
-        pc_individuals[ii]->vInitializeRandomPaths();
-    }
+    v_initialize_individuals();
+    v_initialize_paths();
 }
 
 int CPopulation::iGetSize() const {
@@ -28,5 +28,11 @@ CIndividual *CPopulation::pcGetIndividual(int iIndex) {
 void CPopulation::v_initialize_individuals() {
     for (int ii = 0; ii < i_population_size; ++ii) {
         pc_individuals[ii] = new CIndividual(pc_problem);
+    }
+}
+
+void CPopulation::v_initialize_paths() {
+    for (int ii = 0; ii < i_population_size; ++ii) {
+        pc_individuals[ii]->vInitializeRandomPaths();
     }
 }
