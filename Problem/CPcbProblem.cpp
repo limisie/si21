@@ -48,6 +48,10 @@ std::string CPcbProblem::sGetFile() {
     return s_file_name;
 }
 
+int CPcbProblem::iGetPathsQuantity() {
+    return i_paths_quantity;
+}
+
 void CPcbProblem::v_deallocate_matrix(int **piMatrix, int iRows) {
     for (int ii = 0; ii < iRows; ii++) {
         delete piMatrix[ii];
@@ -76,3 +80,18 @@ std::string CPcbProblem::s_get_points() {
 std::string CPcbProblem::sToString() {
     return "Board size: " + std::to_string(i_board_size_x) + " x " + std::to_string(i_board_size_y) + "\n" + s_get_points();
 }
+
+int CPcbProblem::iGetBoardDimension(bool dimension) {
+    if (dimension) return i_board_size_x;
+    else return i_board_size_y;
+}
+
+int CPcbProblem::iGetPoint(int iRow, int iColumn) {
+    return pi_points[iRow][iColumn];
+}
+
+int *CPcbProblem::iGetPoints(int iPathId) {
+    return pi_points[iPathId];
+}
+
+

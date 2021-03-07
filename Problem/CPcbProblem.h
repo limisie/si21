@@ -17,6 +17,11 @@ public:
     void vSetBoard(int iX, int iY);
     void vSetPoints(std::vector<int> vPoints);
 
+    int iGetPathsQuantity();
+    int iGetBoardDimension(bool dimension);
+    int *iGetPoints(int iPathId);
+    int iGetPoint(int iRow, int iColumn);
+
     std::string sGetFile();
     std::string sToString();
     void vPrintPoints();
@@ -25,8 +30,8 @@ private:
     int i_board_size_x;
     int i_board_size_y;
 
-    int **pi_points{};        // macierz n x [start_x, start_y, end_x, end_y]
-    int i_paths_quantity{};   // n
+    int **pi_points;        // macierz n x [start_x, start_y, end_x, end_y]
+    int i_paths_quantity;   // n
 
     std::string s_file_name;
 
