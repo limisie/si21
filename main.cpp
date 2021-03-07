@@ -3,7 +3,7 @@
 #include "Optimization/Representation/CIndividual.h"
 #include "Helper/CRandom.h"
 
-#define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad1.txt"
+#define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad0.txt"
 
 void vTestRandom() {
     CRandom cRandom = CRandom();
@@ -21,9 +21,13 @@ void vTestLoading() {
 
     CIndividual cIndividual = CIndividual(cPcbProblem);
     std::cout << cIndividual.sToString() << "\n";
+
+    cIndividual.vInitializeRandomPaths();
+    std::cout << cIndividual.sToString() << "\n";
 }
 
 int main() {
+    vTestLoading();
 }
 
 //TODO: PYTANIA

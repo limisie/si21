@@ -19,7 +19,7 @@ public:
 
     void vSetRandomPath(int iMaxX, int iMaxY);
 
-    int iGetStartPoints(bool dimension);
+    int iGetStartPoints(bool dimension) const;
     std::tuple<int, int> iGetSegment(int iSegmentId);
     int iGetSegmentsQuantity();
     static std::vector<std::tuple<int, int>> vGetPath();

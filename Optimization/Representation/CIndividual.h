@@ -43,9 +43,9 @@ private:
     void v_bake();
     void v_set_violations();
 
-    void v_deallocate_matrix(int **piMatrix, int iRows);
-    void v_allocate_matrix(int ***piMatrix, int iColumns, int iRows);
-    void v_initialize_matrix(int ***piMatrix, int iColumns, int iRows);
+    static void v_deallocate_matrix(int **piMatrix, int iRows);
+    static void v_allocate_matrix(int ***piMatrix, int iColumns, int iRows);
+    static void v_initialize_matrix(int ***piMatrix, int iColumns, int iRows);
     void v_initialize_paths();
     void v_initialize_board();
     std::string s_get_points();
@@ -54,7 +54,7 @@ public:
     int *iGetViolations();
 
     void vSetFitness(double dFitness);
-    double dGetFitness();
+    double dGetFitness() const;
 
     CPath cGetPath(int id);
     std::string sToString();
