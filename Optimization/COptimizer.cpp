@@ -1,4 +1,3 @@
-#include <iostream>
 #include "COptimizer.h"
 
 COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize) {

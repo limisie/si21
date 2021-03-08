@@ -93,5 +93,3 @@ int CPcbProblem::iGetPoint(int iRow, int iColumn) {
 int *CPcbProblem::iGetPoints(int iPathId) {
     return pi_points[iPathId];
 }
-
-

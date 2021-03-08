@@ -25,6 +25,4 @@ public:
     CIndividual *pcGetIndividual(int iIndex);
 };
 
-
-
 #endif //L1_ALGORYTMY_GENETYCZNE_CPOPULATION_H

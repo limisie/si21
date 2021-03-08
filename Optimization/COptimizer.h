@@ -1,14 +1,9 @@
 #ifndef L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H
 #define L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H
 
-//k1 - liczba przecięć,
-//k2 - sumaryczna długość ścieżek,
-//k3 - sumaryczna liczba segmentów tworzących ścieżki.
-//k4 - liczba ścieżek poza płytką,
-//k5 - sumaryczna długość części ścieżek poza płytką.
-
 #include "../Problem/CPcbProblem.h"
 #include "CPopulation.h"
+#include <iostream>
 
 class COptimizer {
 

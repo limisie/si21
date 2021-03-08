@@ -6,14 +6,14 @@
 
 #define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad0.txt"
 
-void vTestRandom() {
+void vRunRandom() {
     CRandom cRandom = CRandom();
 
     std::cout << cRandom.iRandomInt() << "\n";
     std::cout << cRandom.iRandomIntInclusiveRange(0, 3) << "\n";
 }
 
-void vTestLoading() {
+void vRunIndividualInitialization() {
     std::string sFileName = TEST_FILE_PATH;
     CPcbProblem *cPcbProblem;
     cPcbProblem = new CPcbProblem(sFileName);
@@ -27,7 +27,7 @@ void vTestLoading() {
     std::cout << cIndividual.sToString() << "\n";
 }
 
-void vTestOptimizer() {
+void vRunOptimizer() {
     std::string sFileName = TEST_FILE_PATH;
     CPcbProblem *cPcbProblem;
     cPcbProblem = new CPcbProblem(sFileName);
@@ -44,9 +44,5 @@ void vTestOptimizer() {
 }
 
 int main() {
-    vTestOptimizer();
+    vRunOptimizer();
 }
-
-//TODO: PYTANIA
-//- stopień nieprzystosowania czy funkcja przystosowania?
-//- czy jest sens operować na genotypie skoro ma zmienną długość?

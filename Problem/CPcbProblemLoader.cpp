@@ -58,4 +58,3 @@ bool CPcbProblemLoader::b_close() {
     } catch (...) {}
     return !s_file.is_open();
 }
-

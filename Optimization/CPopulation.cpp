@@ -1,4 +1,3 @@
-#include <iostream>
 #include "CPopulation.h"
 
 CPopulation::CPopulation(CPcbProblem *pcProblem, int iSize) {

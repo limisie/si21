@@ -1,4 +1,3 @@
-#include <iostream>
 #include "CIndividual.h"
 
 CIndividual::CIndividual(CPcbProblem *pcProblem) {
@@ -83,12 +82,6 @@ void CIndividual::v_bake() {
         }
     }
 }
-
-//k1 - liczba przecięć,
-//k2 - sumaryczna długość ścieżek,
-//k3 - sumaryczna liczba segmentów tworzących ścieżki.
-//k4 - liczba ścieżek poza płytką,
-//k5 - sumaryczna długość części ścieżek poza płytką.
 
 void CIndividual::v_set_violations() {
     int i_board_x = pc_problem->iGetBoardDimension(true);

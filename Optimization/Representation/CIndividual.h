@@ -24,12 +24,6 @@ private:
     CPcbProblem *pc_problem;
     CPath **pc_paths;
     int **pi_board;
-
-    //k1 - liczba przecięć,
-    //k2 - sumaryczna długość ścieżek,
-    //k3 - sumaryczna liczba segmentów tworzących ścieżki.
-    //k4 - liczba ścieżek poza płytką,
-    //k5 - sumaryczna długość części ścieżek poza płytką.
     int *pi_violations;
     double d_fitness;
 
@@ -53,6 +47,5 @@ public:
     CPath cGetPath(int id);
     std::string sToString();
 };
-
 
 #endif //L1_ALGORYTMY_GENETYCZNE_CINDIVIDUAL_H

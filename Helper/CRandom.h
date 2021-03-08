@@ -22,5 +22,4 @@ private:
     std::mt19937 mt_engine;
 };
 
-
 #endif //L1_ALGORYTMY_GENETYCZNE_CRANDOM_H
