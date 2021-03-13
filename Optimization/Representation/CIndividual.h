@@ -16,13 +16,14 @@ class CIndividual {
 public:
 
     explicit CIndividual(CPcbProblem *pc_problem);
+    CIndividual(const CIndividual& cToCopy);
     ~CIndividual();
 
     void vInitializeRandomPaths();
 
 private:
     CPcbProblem *pc_problem;
-    CPath **pc_paths;
+    std::vector<CPath*> vc_paths;
     int **pi_board;
     int *pi_violations;
     double d_fitness;
@@ -31,11 +32,12 @@ private:
     void v_bake();
     void v_set_violations();
 
-    static void v_deallocate_matrix(int **piMatrix, int iRows);
     static void v_allocate_matrix(int ***piMatrix, int iColumns, int iRows);
     static void v_initialize_matrix(int ***piMatrix, int iColumns, int iRows);
+    static void v_deallocate_matrix(int **piMatrix, int iRows);
     void v_initialize_paths();
     void v_initialize_board();
+    void v_initialize_violations();
     std::string s_get_points();
 
 public:
@@ -43,8 +45,6 @@ public:
 
     void vSetFitness(double dFitness);
     double dGetFitness() const;
-
-    CPath cGetPath(int id);
     std::string sToString();
 };
 

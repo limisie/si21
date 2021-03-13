@@ -33,7 +33,6 @@ private:
     int i_end_y;
 
     int i_path_length;
-
     std::vector<std::tuple<int, int>> v_path;
 };
 

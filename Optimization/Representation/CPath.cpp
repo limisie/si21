@@ -8,6 +8,7 @@ CPath::CPath(int iStartX, int iStartY, int iEndX, int iEndY) {
     i_end_x = iEndX;
     i_end_y = iEndY;
     i_path_length = 0;
+    v_path = std::vector<std::tuple<int, int>>();
 }
 
 CPath::CPath() {
@@ -15,6 +16,8 @@ CPath::CPath() {
     i_start_y = 0;
     i_end_x = 0;
     i_end_y = 0;
+    i_path_length = 0;
+    v_path = std::vector<std::tuple<int, int>>();
 }
 
 std::vector<std::tuple<int, int>> CPath::vGetPath() {

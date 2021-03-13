@@ -5,7 +5,6 @@ CPcbProblemLoader::CPcbProblemLoader(CPcbProblem *pcProblem) {
 }
 
 CPcbProblemLoader::~CPcbProblemLoader() {
-    pc_problem = nullptr;
     b_close();
 }
 

@@ -12,6 +12,9 @@ public:
     ~COptimizer();
 
     CIndividual * pcRandom();
+    CIndividual *pcOptimize();
+
+    void vInitializeRandomPopulation();
 
 private:
     CPcbProblem *pc_problem;
@@ -22,17 +25,18 @@ private:
     int i_iterations;
     double d_expected_fitness;
 
-    void v_grade_individual(CIndividual *pcIndividual);
+    double d_tournament_percentage;
+
+    int i_tournament_selection();
+    int i_roulette_selection();
+
+    double d_grade_individual(CIndividual *pcIndividual);
     bool b_stop_condition();
 
 public:
-    double dGetAdjustmentGrade(int iIndividual);
-    double dGetFitness(int iIndividual);
-
     void vSetExpectedFitness(double dExpectedFitness);
     void vSetNumberOfIterations(int iIterations);
-
-    void v_grade_individual(CIndividual &pcIndividual);
+    void vSetTournamentPercentage(double dPercentage);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H

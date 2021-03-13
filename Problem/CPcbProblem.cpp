@@ -5,7 +5,8 @@
 CPcbProblem::CPcbProblem(int iBoardX, int iBoardY, std::vector<int> vPoints) {
     i_board_size_x = iBoardX;
     i_board_size_y = iBoardY;
-    i_paths_quantity = vPoints.size() / 4;
+    i_paths_quantity = vPoints.size() / PATH_POINTS;
+    v_allocate_matrix(&pi_points, PATH_POINTS, i_paths_quantity);
     vSetPoints(std::move(vPoints));
 
     s_file_name = nullptr;

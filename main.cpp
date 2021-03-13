@@ -37,10 +37,10 @@ void vRunOptimizer() {
     std::cout << cPcbProblem->sToString() << "\n";
 
     double *pdPenalties;
-    pdPenalties = new double[VIOLATION_TYPES] {1000, 1, 1, 1, 1};
+    pdPenalties = new double[VIOLATION_TYPES] {10000, 1, 10, 1, 1};
 
     COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 10, CONDITION_ITERATIONS);
-    cOptimizer.vSetNumberOfIterations(100);
+    cOptimizer.vSetNumberOfIterations(1000);
     CIndividual *pcBest = cOptimizer.pcRandom();
     std::cout << pcBest->sToString() << std::endl;
 }

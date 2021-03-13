@@ -1,44 +1,45 @@
 #include "CPopulation.h"
 
 CPopulation::CPopulation(CPcbProblem *pcProblem, int iSize) {
-    pc_problem =pcProblem;
+    pc_problem = pcProblem;
     i_population_size = iSize;
     i_generation = 0;
     d_best_fitness = std::numeric_limits<double>::max();
-    pc_individuals = new CIndividual*[i_population_size];
+    i_best_individual_index = -1;
+    d_population_fitness = 0;
+    pc_best_individual = nullptr;
+    pc_individuals = new CIndividual *[i_population_size];
     v_initialize_individuals();
 }
 
 CPopulation::~CPopulation() {
     pc_problem = nullptr;
-    delete [] pc_individuals;
+    delete pc_best_individual;
+    delete[] pc_individuals;
 }
 
-int CPopulation::iGetSize() const {
-    return i_population_size;
+CIndividual *CPopulation::pcInitializeRandomIndividual(int iIndex) {
+    pc_individuals[iIndex] = new CIndividual(pc_problem);
+    pc_individuals[iIndex]->vInitializeRandomPaths();
+    return pc_individuals[iIndex];
 }
 
-int CPopulation::iGetGeneration() const {
-    return i_generation;
+void CPopulation::vInitializeRandomPopulation() {
+    for (int ii = 0; ii < i_population_size; ++ii) {
+        pc_individuals[ii] = new CIndividual(pc_problem);
+        pc_individuals[ii]->vInitializeRandomPaths();
+    }
 }
 
 void CPopulation::vDie() {
     i_generation++;
+    d_population_fitness = 0;
 
-    CIndividual *pc_best = pc_individuals[i_best_individual_index];
     for (int ii = 0; ii < i_population_size; ++ii) {
         if (ii != i_best_individual_index) {
             delete pc_individuals[ii];
         }
     }
-    int i_new_best = 0;
-
-    pc_individuals[i_new_best] = pc_best;
-    i_best_individual_index = i_new_best;
-}
-
-CIndividual *CPopulation::pcGetIndividual(int iIndex) {
-    return pc_individuals[iIndex];
 }
 
 void CPopulation::v_initialize_individuals() {
@@ -51,8 +52,20 @@ double CPopulation::dGetBestFitness() {
     return d_best_fitness;
 }
 
-CIndividual* CPopulation::pcGetBestIndividual() {
-    return pc_individuals[i_best_individual_index];
+int CPopulation::iGetGeneration() const {
+    return i_generation;
+}
+
+int CPopulation::iGetSize() const {
+    return i_population_size;
+}
+
+CIndividual *CPopulation::pcGetIndividual(int iIndex) {
+    return pc_individuals[iIndex];
+}
+
+CIndividual *CPopulation::pcGetBestIndividual() {
+    return pc_best_individual;
 }
 
 int CPopulation::iGetBestIndividualIndex() {
@@ -63,15 +76,15 @@ void CPopulation::vSetBestFitness(double dBestFitness) {
     d_best_fitness = dBestFitness;
 }
 
-CIndividual* CPopulation::pcInitializeRandomIndividual(int iIndex) {
-    if (pc_individuals[iIndex] != nullptr) {
-        delete pc_individuals[iIndex];
-    }
-    pc_individuals[iIndex] = new CIndividual(pc_problem);
-    pc_individuals[iIndex]->vInitializeRandomPaths();
-    return pc_individuals[iIndex];
-}
-
 void CPopulation::vSetBestIndividual(int iIndex) {
     i_best_individual_index = iIndex;
+}
+
+void CPopulation::vSetBestIndividual(CIndividual *pcIndividual) {
+    pc_best_individual = pcIndividual;
+    d_best_fitness = pc_best_individual->dGetFitness();
+}
+
+void CPopulation::vAddPopulationFitness(double dFitness) {
+    d_population_fitness += dFitness;
 }
