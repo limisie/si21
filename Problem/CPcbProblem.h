@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#define MATRIX_COLS 4
+#define PATH_POINTS 4
 
 class CPcbProblem {
 

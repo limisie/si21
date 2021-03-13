@@ -7,6 +7,7 @@ CPath::CPath(int iStartX, int iStartY, int iEndX, int iEndY) {
     i_start_y = iStartY;
     i_end_x = iEndX;
     i_end_y = iEndY;
+    i_path_length = 0;
 }
 
 CPath::CPath() {

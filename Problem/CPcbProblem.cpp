@@ -5,6 +5,7 @@
 CPcbProblem::CPcbProblem(int iBoardX, int iBoardY, std::vector<int> vPoints) {
     i_board_size_x = iBoardX;
     i_board_size_y = iBoardY;
+    i_paths_quantity = vPoints.size() / 4;
     vSetPoints(std::move(vPoints));
 
     s_file_name = nullptr;
@@ -34,12 +35,12 @@ void CPcbProblem::vSetBoard(int iX, int iY) {
 }
 
 void CPcbProblem::vSetPoints(std::vector<int> vPoints) {
-    i_paths_quantity = vPoints.size() / MATRIX_COLS;
-    v_allocate_matrix(&pi_points, MATRIX_COLS, i_paths_quantity);
+    i_paths_quantity = vPoints.size() / PATH_POINTS;
+    v_allocate_matrix(&pi_points, PATH_POINTS, i_paths_quantity);
 
     for (int ii = 0; ii < i_paths_quantity; ii++) {
-        for (int jj = 0; jj < MATRIX_COLS; jj++) {
-            pi_points[ii][jj] = vPoints.at(ii * MATRIX_COLS + jj);
+        for (int jj = 0; jj < PATH_POINTS; jj++) {
+            pi_points[ii][jj] = vPoints.at(ii * PATH_POINTS + jj);
         }
     }
 }
@@ -69,7 +70,7 @@ void CPcbProblem::v_allocate_matrix(int ***piMatrix, int iColumns, int iRows) {
 std::string CPcbProblem::s_get_points() {
     std::string s_pcb_problem;
     for (int i = 0; i < i_paths_quantity; i++) {
-        for (int j = 0; j < MATRIX_COLS; j++) {
+        for (int j = 0; j < PATH_POINTS; j++) {
             s_pcb_problem += std::to_string(pi_points[i][j]) + " ";
         }
         s_pcb_problem += "\n";

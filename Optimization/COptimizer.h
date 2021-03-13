@@ -8,24 +8,31 @@
 class COptimizer {
 
 public:
-    COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize);
+    COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize, int iMode);
     ~COptimizer();
 
-    void vInitRandomPopulation();
-    void vGadePopulation();
-    void vShowPopulation();
-
-    double dGetAdjustmentGrade(int iIndividual);
-    double dGetFitness(int iIndividual);
+    CIndividual * pcRandom();
 
 private:
     CPcbProblem *pc_problem;
     CPopulation *pc_population;
     double *pd_penalties;
-    double d_best_individual_grade;
 
-    void v_grade_individual(int iIndividual);
+    int i_stop_condition_mode;
+    int i_iterations;
+    double d_expected_fitness;
 
+    void v_grade_individual(CIndividual *pcIndividual);
+    bool b_stop_condition();
+
+public:
+    double dGetAdjustmentGrade(int iIndividual);
+    double dGetFitness(int iIndividual);
+
+    void vSetExpectedFitness(double dExpectedFitness);
+    void vSetNumberOfIterations(int iIterations);
+
+    void v_grade_individual(CIndividual &pcIndividual);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H

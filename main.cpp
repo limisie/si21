@@ -5,6 +5,8 @@
 #include "Optimization/COptimizer.h"
 
 #define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad0.txt"
+#define CONDITION_ITERATIONS 0
+#define CONDITION_FITNESS 1
 
 void vRunRandom() {
     CRandom cRandom = CRandom();
@@ -35,12 +37,12 @@ void vRunOptimizer() {
     std::cout << cPcbProblem->sToString() << "\n";
 
     double *pdPenalties;
-    pdPenalties = new double[VIOLATION_TYPES] {1, 1, 1, 1, 1};
+    pdPenalties = new double[VIOLATION_TYPES] {1000, 1, 1, 1, 1};
 
-    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 10);
-    cOptimizer.vInitRandomPopulation();
-    cOptimizer.vGadePopulation();
-    cOptimizer.vShowPopulation();
+    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 10, CONDITION_ITERATIONS);
+    cOptimizer.vSetNumberOfIterations(100);
+    CIndividual *pcBest = cOptimizer.pcRandom();
+    std::cout << pcBest->sToString() << std::endl;
 }
 
 int main() {
