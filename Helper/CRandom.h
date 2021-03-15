@@ -20,6 +20,7 @@ public:
 private:
     unsigned int i_seed;
     std::mt19937 mt_engine;
+    std::random_device rand_dev;
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_CRANDOM_H

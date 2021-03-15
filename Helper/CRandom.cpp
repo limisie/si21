@@ -1,9 +1,7 @@
-#include <random>
 #include "CRandom.h"
 
 CRandom::CRandom() {
-    i_seed = std::chrono::system_clock::now().time_since_epoch().count();
-    mt_engine.seed(i_seed);
+    mt_engine.seed(rand_dev());
 }
 
 CRandom::CRandom(unsigned int iSeed) {

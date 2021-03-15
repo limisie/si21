@@ -20,6 +20,7 @@ public:
     ~CIndividual();
 
     void vInitializeRandomPaths();
+    void vUpdate();
 
 private:
     CPcbProblem *pc_problem;
@@ -36,8 +37,8 @@ private:
     static void v_initialize_matrix(int ***piMatrix, int iColumns, int iRows);
     static void v_deallocate_matrix(int **piMatrix, int iRows);
     void v_initialize_paths();
-    void v_initialize_board();
-    void v_initialize_violations();
+    void v_reset_board();
+    void v_reset_violations();
     std::string s_get_points();
 
 public:
@@ -46,6 +47,9 @@ public:
     void vSetFitness(double dFitness);
     double dGetFitness() const;
     std::string sToString();
+
+    void vSetPath(int iIndex, CPath *pcPath);
+    CPath *vGetPath(int iIndex);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_CINDIVIDUAL_H

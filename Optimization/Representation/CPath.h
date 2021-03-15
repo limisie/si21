@@ -23,7 +23,7 @@ public:
     std::tuple<int, int> iGetSegment(int iSegmentId);
     int iGetSegmentsQuantity();
     int iGetPathLength();
-    static std::vector<std::tuple<int, int>> vGetPath();
+    std::vector<std::tuple<int, int>> vGetPath();
     void vSetPath(std::vector<std::tuple<int, int>> vPath);
 
 private:

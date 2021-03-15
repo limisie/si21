@@ -2,42 +2,44 @@
 
 CIndividual::CIndividual(CPcbProblem *pcProblem) {
     pc_problem = pcProblem;
-    v_initialize_board();
+    int i_paths = pc_problem->iGetPathsQuantity();
+    int i_board_x = pc_problem->iGetBoardDimension(true);
+    int i_board_y = pc_problem->iGetBoardDimension(false);
 
-    vc_paths = std::vector<CPath*>(pc_problem->iGetPathsQuantity());
+    vc_paths = std::vector<CPath*>(i_paths);
     v_initialize_paths();
 
-    pi_violations = new int[VIOLATION_TYPES];
-    v_initialize_violations();
+    v_allocate_matrix(&pi_board, i_board_x, i_board_y);
 
+    pi_violations = new int[VIOLATION_TYPES];
     d_fitness = 0;
 }
 
 CIndividual::CIndividual(const CIndividual& cToCopy) {
     pc_problem = cToCopy.pc_problem;
-    d_fitness = cToCopy.d_fitness;
-    v_initialize_board();
-
     int i_paths = pc_problem->iGetPathsQuantity();
     int i_board_x = pc_problem->iGetBoardDimension(true);
     int i_board_y = pc_problem->iGetBoardDimension(false);
+
+    vc_paths = std::vector<CPath*>(i_paths);
+    v_initialize_paths();
+    for (int ii = 0; ii < cToCopy.vc_paths.size(); ++ii) {
+        vc_paths[ii]->vSetPath(cToCopy.vc_paths[ii]->vGetPath());
+    }
+
+    v_allocate_matrix(&pi_board, i_board_x, i_board_y);
+    for (int ii = 0; ii < i_board_y; ++ii) {
+        for (int jj = 0; jj < i_board_x; ++jj) {
+            pi_board[ii][jj] = cToCopy.pi_board[ii][jj];
+        }
+    }
 
     pi_violations = new int[VIOLATION_TYPES];
     for (int ii = 0; ii < VIOLATION_TYPES; ++ii) {
         pi_violations[ii] = cToCopy.pi_violations[ii];
     }
 
-    vc_paths = std::vector<CPath*>(i_paths);
-    v_initialize_paths();
-    for (int ii = 0; ii < vc_paths.size(); ++ii) {
-        vc_paths[ii]->vSetPath(cToCopy.vc_paths[ii]->vGetPath());
-    }
-
-    for (int ii = 0; ii < i_board_y; ++ii) {
-        for (int jj = 0; jj < i_board_x; ++jj) {
-            pi_board[ii][jj] = cToCopy.pi_board[ii][jj];
-        }
-    }
+    d_fitness = cToCopy.d_fitness;
 }
 
 CIndividual::~CIndividual() {
@@ -55,6 +57,11 @@ void CIndividual::vInitializeRandomPaths() {
     v_set_violations();
 }
 
+void CIndividual::vUpdate() {
+    v_bake();
+    v_set_violations();
+}
+
 void CIndividual::v_set_random_paths() {
     for (int ii = 0; ii < pc_problem->iGetPathsQuantity(); ++ii) {
         vc_paths[ii]->vSetRandomPath(pc_problem->iGetBoardDimension(true) - 1, pc_problem->iGetBoardDimension(false) - 1);
@@ -62,6 +69,8 @@ void CIndividual::v_set_random_paths() {
 }
 
 void CIndividual::v_bake() {
+    v_reset_board();
+
     int i_current_x, i_current_y, i_new_position_x, i_new_position_y, i_direction, i_step, i_start, i_end = 0;
     bool b_direction = false;
 
@@ -120,18 +129,19 @@ void CIndividual::v_set_violations() {
     int i_board_x = pc_problem->iGetBoardDimension(true);
     int i_board_y = pc_problem->iGetBoardDimension(false);
     int i_paths = pc_problem->iGetPathsQuantity();
+    v_reset_violations();
 
     for (int ii = 0; ii < i_board_y; ++ii) {
         for (int jj = 0; jj < i_board_x; ++jj) {
-            if(pi_board[jj][ii] > 1) {
-                pi_violations[K1] += pi_board[jj][ii] - 1;
+            if(pi_board[ii][jj] > 1) {
+                pi_violations[K1] += pi_board[ii][jj] - 1;
             }
         }
     }
 
     for (int ii = 0; ii < i_paths; ++ii) {
-        pi_violations[K3] += vc_paths[ii]->iGetSegmentsQuantity();
         pi_violations[K2] += vc_paths[ii]->iGetPathLength();
+        pi_violations[K3] += vc_paths[ii]->iGetSegmentsQuantity();
     }
 }
 
@@ -168,21 +178,15 @@ void CIndividual::v_initialize_paths() {
     }
 }
 
-void CIndividual::v_initialize_board() {
-    int i_paths = pc_problem->iGetPathsQuantity();
-    int i_board_x = pc_problem->iGetBoardDimension(true);
-    int i_board_y = pc_problem->iGetBoardDimension(false);
+void CIndividual::v_reset_board() {
+    v_initialize_matrix(&pi_board, pc_problem->iGetBoardDimension(true), pc_problem->iGetBoardDimension(false));
 
-    v_allocate_matrix(&pi_board, i_board_x, i_board_y);
-    v_initialize_matrix(&pi_board, i_board_x, i_board_y);
-
-    for (int ii = 0; ii < i_paths; ++ii) {
-//        pi_board[pc_problem->iGetPoint(ii, 1)][pc_problem->iGetPoint(ii, 0)] += 1;
+    for (int ii = 0; ii < pc_problem->iGetPathsQuantity(); ++ii) {
         pi_board[pc_problem->iGetPoint(ii, 3)][pc_problem->iGetPoint(ii, 2)] += 1;
     }
 }
 
-void CIndividual::v_initialize_violations() {
+void CIndividual::v_reset_violations() {
     for (int ii = 0; ii < VIOLATION_TYPES; ++ii) {
         pi_violations[ii] = 0;
     }
@@ -201,6 +205,14 @@ std::string CIndividual::s_get_points() {
     }
 
     return s_board;
+}
+
+void CIndividual::vSetPath(int iIndex, CPath *pcPath) {
+    vc_paths[iIndex]->vSetPath(pcPath->vGetPath());
+}
+
+CPath *CIndividual::vGetPath(int iIndex) {
+    return vc_paths[iIndex];
 }
 
 void CIndividual::vSetFitness(double dFitness) {

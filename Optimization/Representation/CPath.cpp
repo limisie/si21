@@ -21,11 +21,12 @@ CPath::CPath() {
 }
 
 std::vector<std::tuple<int, int>> CPath::vGetPath() {
-    return std::vector<std::tuple<int, int>>();
+    return v_path;
 }
 
 void CPath::vSetPath(std::vector<std::tuple<int, int>> vPath) {
     v_path = std::move(vPath);
+    i_path_length = v_path.size();
 }
 
 int CPath::iGetSegmentsQuantity() {

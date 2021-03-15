@@ -1,15 +1,22 @@
 #include <set>
 #include "COptimizer.h"
 
-COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize, int iMode) {
+
+COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize) {
     pc_problem = pcProblem;
     pc_population = new CPopulation(pc_problem, iPopulationSize);
     pd_penalties = pdPenalties;
-    i_stop_condition_mode = iMode;
+
+    i_selection_mode = 1;
+    i_crossover_mode = 1;
+    i_stop_condition_mode = 0;
+
     i_iterations = 0;
     d_expected_fitness = 0;
 
-    d_tournament_percentage = 1;
+    d_tournament_percentage = 0.5;
+    d_crossover_probability = 0.5;
+    d_mutation_probability = 0.5;
 }
 
 COptimizer::~COptimizer() {
@@ -34,9 +41,88 @@ CIndividual *COptimizer::pcRandom() {
 }
 
 CIndividual *COptimizer::pcOptimize() {
+    CRandom c_random = CRandom();
+    CPopulation *pc_new;
+    vInitializeRandomPopulation();
+
     while (!b_stop_condition()) {
+        pc_new = new CPopulation(*pc_population);
+        pc_population->vCountPopulationFitness();
+
+        for (int ii = 0; ii < pc_population->iGetSize(); ++ii) {
+            CIndividual *pc_mother = pc_population->pcGetIndividual(ii);
+            CIndividual *pc_kid = new CIndividual(*pc_mother);
+            pc_new->vSetIndividual(ii, pc_kid);
+
+            double d_probability = c_random.dRandomDoubleInclusiveRange(0.0, 1.0);
+            if (d_probability < d_crossover_probability) {
+                int i_father_index = i_selection();
+                while (ii == i_father_index) {
+                    i_father_index = i_selection();
+                }
+                CIndividual *pc_father = pc_population->pcGetIndividual(i_father_index);
+                v_crossover(pc_kid, pc_father);
+            }
+
+            d_probability = c_random.dRandomDoubleInclusiveRange(0, 1);
+            if (d_probability < d_mutation_probability) {
+                //TODO: mutation
+            }
+
+            double d_fitness = d_grade_individual(pc_kid);
+            if (d_fitness < pc_population->dGetBestFitness()) {
+                pc_population->vSetBestFitness(d_fitness);
+                pc_new->vSetBestIndividual(new CIndividual(*pc_kid));
+            }
+        }
+
+        delete pc_population;
+        pc_population = pc_new;
     }
     return pc_population->pcGetBestIndividual();
+}
+
+void COptimizer::v_crossover(CIndividual *pcKid, CIndividual*pcDad) {
+    switch (i_crossover_mode) {
+        case 0:
+            v_single_point_crossover(pcKid, pcDad);
+            break;
+        case 1:
+            v_multipoint_crossover(pcKid, pcDad);
+            break;
+    }
+    pcKid->vUpdate();
+}
+
+void COptimizer::v_single_point_crossover(CIndividual *pcKid, CIndividual*pcDad) {
+    CRandom c_random = CRandom();
+    int i_paths_quantity = pc_problem->iGetPathsQuantity();
+    int i_point = c_random.iRandomIntInclusiveRange(0, i_paths_quantity - 1);
+
+    for (int ii = i_point; ii < i_paths_quantity; ++ii) {
+        pcKid->vSetPath(ii, pcDad->vGetPath(ii));
+    }
+}
+
+void COptimizer::v_multipoint_crossover(CIndividual *pcKid, CIndividual *pcDad) {
+    CRandom c_random = CRandom();
+    int i_paths_quantity = pc_problem->iGetPathsQuantity();
+
+    for (int ii = 0; ii < i_paths_quantity; ++ii) {
+        if(c_random.dRandomDoubleInclusiveRange(0.0, 1.0) < d_crossover_probability) {
+            pcKid->vSetPath(ii, pcDad->vGetPath(ii));
+        }
+    }
+}
+
+int COptimizer::i_selection() {
+    switch (i_selection_mode) {
+        case 0:
+            return i_tournament_selection();
+        case 1:
+            return i_roulette_selection();
+    }
+    return true;
 }
 
 int COptimizer::i_tournament_selection() {
@@ -46,7 +132,7 @@ int COptimizer::i_tournament_selection() {
     int i_individuals_set_size = pc_population->iGetSize() * d_tournament_percentage;
     std::set<int> si_chosen;
 
-    CRandom c_random;
+    CRandom c_random = CRandom();
     while (si_chosen.size() < i_individuals_set_size) {
         int i_random = c_random.iRandomIntInclusiveRange(0, pc_population->iGetSize() - 1);
         bool b_is_unique = si_chosen.insert(i_random).second;
@@ -63,12 +149,25 @@ int COptimizer::i_tournament_selection() {
 }
 
 int COptimizer::i_roulette_selection() {
+    int i_index = 0;
+    double d_partial_sum = 0;
 
+    CRandom c_random = CRandom();
+    double d_pick = c_random.dRandomDoubleInclusiveRange(0.0, 1.0);
+
+    while (d_pick > d_partial_sum) {
+        double d_adaptation_grade = pc_population->dGetAdaptationGrade(i_index);
+        d_partial_sum += d_adaptation_grade;
+        i_index++;
+    }
+
+    return i_index - 1;
 }
 
 double COptimizer::d_grade_individual(CIndividual *pcIndividual) {
     double d_grade = 0;
-    int *pi_violations = pcIndividual->iGetViolations();
+    int *pi_violations;
+    pi_violations = pcIndividual->iGetViolations();
 
     for (int ii = 0; ii < VIOLATION_TYPES; ++ii) {
         d_grade += pd_penalties[ii] * (double) pi_violations[ii];
@@ -93,9 +192,7 @@ void COptimizer::vInitializeRandomPopulation() {
         CIndividual *pc_new;
         pc_new = pc_population->pcInitializeRandomIndividual(ii);
         d_grade_individual(pc_new);
-        pc_population->vAddPopulationFitness(pc_new->dGetFitness());
     }
-
 }
 
 void COptimizer::vSetExpectedFitness(double dExpectedFitness) {
@@ -108,4 +205,12 @@ void COptimizer::vSetNumberOfIterations(int iIterations) {
 
 void COptimizer::vSetTournamentPercentage(double dPercentage) {
     d_tournament_percentage = dPercentage;
+}
+
+void COptimizer::vSetCrossoverProbability(double dCrossoverProbability) {
+    d_crossover_probability = dCrossoverProbability;
+}
+
+void COptimizer::vSetMutationProbability(double dMutationProbability) {
+    d_mutation_probability = dMutationProbability;
 }
