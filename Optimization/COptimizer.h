@@ -50,6 +50,7 @@ public:
     void vSetCrossoverProbability(double dCrossoverProbability);
     void vSetMutationProbability(double dMutationProbability);
 
+    void v_mutate(CIndividual *pcIndividual);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H

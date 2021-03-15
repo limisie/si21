@@ -21,6 +21,7 @@ public:
 
     void vInitializeRandomPaths();
     void vUpdate();
+    void vMutate(int iPathIndex);
 
 private:
     CPcbProblem *pc_problem;
@@ -50,6 +51,8 @@ public:
 
     void vSetPath(int iIndex, CPath *pcPath);
     CPath *vGetPath(int iIndex);
+
+    void v_initialize_path(int iIndex);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_CINDIVIDUAL_H

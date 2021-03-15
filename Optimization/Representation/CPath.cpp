@@ -49,6 +49,7 @@ void CPath::vSetRandomPath(int iMaxX, int iMaxY) {
     int i_max_step = std::max(iMaxX, iMaxY);
     CRandom c_random = CRandom();
 
+    i_path_length = 0;
     while (i_current_x != i_end_x || i_current_y != i_end_y) {
         int i_direction = c_random.iRandomIntInclusiveRange(UP, LEFT);
         int i_step = c_random.iRandomIntInclusiveRange(1, i_max_step);

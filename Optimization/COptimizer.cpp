@@ -66,7 +66,7 @@ CIndividual *COptimizer::pcOptimize() {
 
             d_probability = c_random.dRandomDoubleInclusiveRange(0, 1);
             if (d_probability < d_mutation_probability) {
-                //TODO: mutation
+                v_mutate(pc_kid);
             }
 
             double d_fitness = d_grade_individual(pc_kid);
@@ -80,6 +80,15 @@ CIndividual *COptimizer::pcOptimize() {
         pc_population = pc_new;
     }
     return pc_population->pcGetBestIndividual();
+}
+
+void COptimizer::v_mutate(CIndividual *pcIndividual) {
+    CRandom cRandom = CRandom();
+    int i_path_quantity = pc_problem->iGetPathsQuantity();
+    int i_path_to_mutate = cRandom.iRandomIntInclusiveRange(0, i_path_quantity - 1);
+
+    pcIndividual->vMutate(i_path_to_mutate);
+    pcIndividual->vUpdate();
 }
 
 void COptimizer::v_crossover(CIndividual *pcKid, CIndividual*pcDad) {
@@ -197,10 +206,12 @@ void COptimizer::vInitializeRandomPopulation() {
 
 void COptimizer::vSetExpectedFitness(double dExpectedFitness) {
     d_expected_fitness = dExpectedFitness;
+    i_stop_condition_mode = 1;
 }
 
 void COptimizer::vSetNumberOfIterations(int iIterations) {
     i_iterations = iIterations;
+    i_stop_condition_mode = 0;
 }
 
 void COptimizer::vSetTournamentPercentage(double dPercentage) {

@@ -68,6 +68,12 @@ void CIndividual::v_set_random_paths() {
     }
 }
 
+void CIndividual::vMutate(int iPathIndex) {
+    delete vc_paths[iPathIndex];
+    v_initialize_path(iPathIndex);
+    vc_paths[iPathIndex]->vSetRandomPath(pc_problem->iGetBoardDimension(true) - 1, pc_problem->iGetBoardDimension(false) - 1);
+}
+
 void CIndividual::v_bake() {
     v_reset_board();
 
@@ -169,13 +175,17 @@ void CIndividual::v_deallocate_matrix(int **piMatrix, int iRows) {
 
 void CIndividual::v_initialize_paths() {
     for (int ii = 0; ii < pc_problem->iGetPathsQuantity(); ++ii) {
-        int i_start_x = pc_problem->iGetPoints(ii)[0];
-        int i_start_y = pc_problem->iGetPoints(ii)[1];
-        int i_end_x = pc_problem->iGetPoints(ii)[2];
-        int i_end_y = pc_problem->iGetPoints(ii)[3];
-
-        vc_paths[ii] = new CPath(i_start_x, i_start_y, i_end_x, i_end_y);
+        v_initialize_path(ii);
     }
+}
+
+void CIndividual::v_initialize_path(int iIndex) {
+        int i_start_x = pc_problem->iGetPoints(iIndex)[0];
+        int i_start_y = pc_problem->iGetPoints(iIndex)[1];
+        int i_end_x = pc_problem->iGetPoints(iIndex)[2];
+        int i_end_y = pc_problem->iGetPoints(iIndex)[3];
+
+        vc_paths[iIndex] = new CPath(i_start_x, i_start_y, i_end_x, i_end_y);
 }
 
 void CIndividual::v_reset_board() {
