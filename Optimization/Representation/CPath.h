@@ -24,7 +24,8 @@ public:
     int iGetSegmentsQuantity();
     int iGetPathLength();
     std::vector<std::tuple<int, int>> vGetPath();
-    void vSetPath(std::vector<std::tuple<int, int>> vPath);
+    void vSetPath(CPath *pcPath);
+    std::string sToString();
 
 private:
     int i_start_x;
@@ -34,6 +35,12 @@ private:
 
     int i_path_length;
     std::vector<std::tuple<int, int>> v_path;
+
+    int i_get_direction(bool bX, int iCurrent);
+
+    int i_get_random_direction(int iCurrentX, int iCurrentY);
+
+    int i_get_random_step();
 };
 
 

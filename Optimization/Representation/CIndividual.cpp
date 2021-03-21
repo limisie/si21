@@ -24,7 +24,7 @@ CIndividual::CIndividual(const CIndividual& cToCopy) {
     vc_paths = std::vector<CPath*>(i_paths);
     v_initialize_paths();
     for (int ii = 0; ii < cToCopy.vc_paths.size(); ++ii) {
-        vc_paths[ii]->vSetPath(cToCopy.vc_paths[ii]->vGetPath());
+        vc_paths[ii]->vSetPath(cToCopy.vc_paths[ii]);
     }
 
     v_allocate_matrix(&pi_board, i_board_x, i_board_y);
@@ -217,8 +217,18 @@ std::string CIndividual::s_get_points() {
     return s_board;
 }
 
+std::string CIndividual::s_get_paths() {
+    std::string s_paths;
+
+    for (int i = 0; i < vc_paths.size(); i++) {
+        s_paths += vc_paths[i]->sToString();
+    }
+
+    return s_paths;
+}
+
 void CIndividual::vSetPath(int iIndex, CPath *pcPath) {
-    vc_paths[iIndex]->vSetPath(pcPath->vGetPath());
+    vc_paths[iIndex]->vSetPath(pcPath);
 }
 
 CPath *CIndividual::vGetPath(int iIndex) {

@@ -21,11 +21,6 @@ CPopulation::CPopulation(CPopulation &cPopulation) {
 
     d_best_fitness = cPopulation.d_best_fitness;
     pc_best_individual = cPopulation.pc_best_individual;
-//    if (cPopulation.pc_best_individual != nullptr) {
-//        pc_best_individual = new CIndividual(*cPopulation.pc_best_individual);
-//    } else {
-//        pc_best_individual = nullptr;
-//    }
     d_population_fitness = 0;
 }
 

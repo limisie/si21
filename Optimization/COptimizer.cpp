@@ -1,4 +1,5 @@
 #include <set>
+#include <iostream>
 #include "COptimizer.h"
 
 
@@ -15,8 +16,8 @@ COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulat
     d_expected_fitness = 0;
 
     d_tournament_percentage = 0.5;
-    d_crossover_probability = 0.5;
-    d_mutation_probability = 0.5;
+    d_crossover_probability = 0.8;
+    d_mutation_probability = 0.25;
 }
 
 COptimizer::~COptimizer() {

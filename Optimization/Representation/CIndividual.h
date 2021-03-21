@@ -33,6 +33,7 @@ private:
     void v_set_random_paths();
     void v_bake();
     void v_set_violations();
+    void v_initialize_path(int iIndex);
 
     static void v_allocate_matrix(int ***piMatrix, int iColumns, int iRows);
     static void v_initialize_matrix(int ***piMatrix, int iColumns, int iRows);
@@ -41,6 +42,7 @@ private:
     void v_reset_board();
     void v_reset_violations();
     std::string s_get_points();
+    std::string s_get_paths();
 
 public:
     int *iGetViolations();
@@ -51,8 +53,6 @@ public:
 
     void vSetPath(int iIndex, CPath *pcPath);
     CPath *vGetPath(int iIndex);
-
-    void v_initialize_path(int iIndex);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_CINDIVIDUAL_H

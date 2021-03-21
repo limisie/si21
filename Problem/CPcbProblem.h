@@ -24,7 +24,6 @@ public:
 
     std::string sGetFile();
     std::string sToString();
-    void vPrintPoints();
 
 private:
     int i_board_size_x;
