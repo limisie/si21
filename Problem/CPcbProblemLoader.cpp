@@ -5,7 +5,8 @@ CPcbProblemLoader::CPcbProblemLoader(CPcbProblem *pcProblem) {
 }
 
 CPcbProblemLoader::~CPcbProblemLoader() {
-    b_close();
+    b_close(true);
+    b_close(false);
 }
 
 void CPcbProblemLoader::vLoad() {
@@ -13,14 +14,14 @@ void CPcbProblemLoader::vLoad() {
         v_load_board();
         v_load_points();
     }
-    b_close();
+    b_close(true);
 }
 
 void CPcbProblemLoader::v_load_board() {
     std::string s_line;
     std::string s_x;
     std::string s_y;
-    std::getline(s_file, s_line);
+    std::getline(s_input_file, s_line);
 
     std::istringstream ss(s_line);
     std::getline(ss, s_x, ';');
@@ -34,7 +35,7 @@ void CPcbProblemLoader::v_load_points() {
     std::string s_int;
     std::vector<int> v_ints;
 
-    while (std::getline(s_file, s_line)) {
+    while (std::getline(s_input_file, s_line)) {
         std::istringstream ss(s_line);
         while (std::getline(ss, s_int, ';')) {
             v_ints.push_back(std::stoi( s_int ));
@@ -46,14 +47,39 @@ void CPcbProblemLoader::v_load_points() {
 
 bool CPcbProblemLoader::b_open_to_read() {
     try {
-        s_file.open(pc_problem->sGetFile());
+        s_input_file.open(pc_problem->sGetFile());
     } catch (...) {}
-    return s_file.is_open();
+    return s_input_file.is_open();
 }
 
-bool CPcbProblemLoader::b_close() {
+bool CPcbProblemLoader::b_close(bool bInputFile) {
+    bool b_result = false;
+
+    if (bInputFile) {
+        try {
+            s_input_file.close();
+        } catch (...) {}
+        b_result = !s_input_file.is_open();
+    } else {
+        try {
+            s_output_file.close();
+        } catch (...) {}
+        b_result = !s_output_file.is_open();
+    }
+    return b_result;
+}
+
+void CPcbProblemLoader::vSaveLine(std::string sFileName, int iGeneration, double dBest, double dWorst, double dAverage) {
+    b_open_to_write(sFileName);
+    std::string s_line = std::to_string((int)iGeneration) + ";" + std::to_string((int)dBest) + ";" + std::to_string((int)dWorst) + ";" + std::to_string((int)dAverage);
+
+    s_output_file << s_line << std::endl;
+    b_close(false);
+}
+
+bool CPcbProblemLoader::b_open_to_write(std::string sFileName) {
     try {
-        s_file.close();
+        s_output_file.open(sFileName, std::ios_base::app);
     } catch (...) {}
-    return !s_file.is_open();
+    return s_output_file.is_open();
 }

@@ -1,6 +1,8 @@
 #include <set>
-#include <iostream>
 #include "COptimizer.h"
+#include "../Problem/CPcbProblemLoader.h"
+
+#define SAVE_TO_FILE true
 
 
 COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulationSize) {
@@ -8,14 +10,14 @@ COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulat
     pc_population = new CPopulation(pc_problem, iPopulationSize);
     pd_penalties = pdPenalties;
 
-    i_selection_mode = 1;
-    i_crossover_mode = 1;
+    i_selection_mode = 0;
+    i_crossover_mode = 0;
     i_stop_condition_mode = 0;
 
     i_iterations = 0;
     d_expected_fitness = 0;
 
-    d_tournament_percentage = 0.5;
+    d_tournament_percentage = 0.8;
     d_crossover_probability = 0.8;
     d_mutation_probability = 0.25;
 }
@@ -50,15 +52,20 @@ CIndividual *COptimizer::pcOptimize() {
         pc_new = new CPopulation(*pc_population);
         pc_population->vCountPopulationFitness();
 
+        double d_best = std::numeric_limits<double>::max();
+        double d_worst = 0;
+        double d_sum = 0;
+
         for (int ii = 0; ii < pc_population->iGetSize(); ++ii) {
-            CIndividual *pc_mother = pc_population->pcGetIndividual(ii);
-            CIndividual *pc_kid = new CIndividual(*pc_mother);
+            int i_current_individual = i_selection();
+            CIndividual *pc_mother = pc_population->pcGetIndividual(i_current_individual);
+            auto *pc_kid = new CIndividual(*pc_mother);
             pc_new->vSetIndividual(ii, pc_kid);
 
             double d_probability = c_random.dRandomDoubleInclusiveRange(0.0, 1.0);
             if (d_probability < d_crossover_probability) {
                 int i_father_index = i_selection();
-                while (ii == i_father_index) {
+                while (i_current_individual == i_father_index) {
                     i_father_index = i_selection();
                 }
                 CIndividual *pc_father = pc_population->pcGetIndividual(i_father_index);
@@ -77,10 +84,33 @@ CIndividual *COptimizer::pcOptimize() {
             }
         }
 
+        if (SAVE_TO_FILE) {
+            for (int ii = 0; ii < pc_population->iGetSize(); ++ii) {
+                double d_fitness = pc_population->pcGetIndividual(ii)->dGetFitness();
+                if (d_fitness > d_worst) {
+                    d_worst = d_fitness;
+                }
+                if (d_fitness < d_best) {
+                    d_best = d_fitness;
+                }
+                d_sum += d_fitness;
+            }
+
+            v_write_population_data_to_file(pc_population->iGetGeneration(),
+                                            d_best,
+                                            d_worst,
+                                            d_sum / pc_population->iGetSize());
+        }
+
         delete pc_population;
         pc_population = pc_new;
     }
     return pc_population->pcGetBestIndividual();
+}
+
+void COptimizer::v_write_population_data_to_file(int iGeneration, double dBest, double dWorst, double dAverage) {
+    CPcbProblemLoader c_loader = CPcbProblemLoader(pc_problem);
+    c_loader.vSaveLine(s_file_name, iGeneration, dBest, dWorst, dAverage);
 }
 
 void COptimizer::v_mutate(CIndividual *pcIndividual) {
@@ -225,4 +255,8 @@ void COptimizer::vSetCrossoverProbability(double dCrossoverProbability) {
 
 void COptimizer::vSetMutationProbability(double dMutationProbability) {
     d_mutation_probability = dMutationProbability;
+}
+
+void COptimizer::vSetFileName(std::string sFileName) {
+    s_file_name = sFileName;
 }

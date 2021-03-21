@@ -32,6 +32,8 @@ private:
     double d_crossover_probability;
     double d_mutation_probability;
 
+    std::string s_file_name;
+
     int i_tournament_selection();
     int i_roulette_selection();
 
@@ -44,6 +46,7 @@ private:
     bool b_stop_condition();
 
 public:
+    void vSetFileName(std::string sFileName);
     void vSetExpectedFitness(double dExpectedFitness);
     void vSetNumberOfIterations(int iIterations);
     void vSetTournamentPercentage(double dPercentage);
@@ -51,6 +54,10 @@ public:
     void vSetMutationProbability(double dMutationProbability);
 
     void v_mutate(CIndividual *pcIndividual);
+
+    void v_write_population_data_to_file(double dBest, double dWorst, double dAverage);
+
+    void v_write_population_data_to_file(int iGeneration, double dBest, double dWorst, double dAverage);
 };
 
 #endif //L1_ALGORYTMY_GENETYCZNE_COPTIMIZER_H

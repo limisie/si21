@@ -4,7 +4,8 @@
 #include "Helper/CRandom.h"
 #include "Optimization/COptimizer.h"
 
-#define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad0.txt"
+#define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad1.txt"
+#define OUTPUT_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/output.txt"
 
 void vRunRandom() {
     CRandom cRandom = CRandom();
@@ -53,8 +54,9 @@ void vRunOptimizer() {
     double *pdPenalties;
     pdPenalties = new double[VIOLATION_TYPES] {100000, 100, 1000, 1, 1};
 
-    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 300);
+    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 100);
     cOptimizer.vSetNumberOfIterations(300);
+    cOptimizer.vSetFileName(OUTPUT_FILE_PATH);
     CIndividual *pcBest = cOptimizer.pcOptimize();
     std::cout << pcBest->sToString() << std::endl;
 }
