@@ -1,18 +1,17 @@
 from csp import *
-import map
+from map_coloring import *
 from einstein import *
 import constraint
 
-NODE_DOMAIN_3 = ['red', 'yellow', 'blue']
-NODE_DOMAIN_4 = ['red', 'yellow', 'blue', 'purple']
-
 
 def map_coloring():
-    problem = map.Map(3, NODE_DOMAIN_4)
-    csp = CSP(SELECT_UNSIGNED, problem)
-    csp.backtracking()
-    for result in csp.results:
-        csp.set_result(result)
+    problem = Map(SELECT_UNSIGNED, 5, 4)
+    problem.backtracking()
+    # problem.backtracking_iterative()
+    print(len(problem.results))
+    for result in problem.results:
+        print(result)
+        problem.set_result(result)
         problem.show()
 
 
@@ -38,7 +37,7 @@ def einstein():
 
 
 def main():
-    einstein()
+    map_coloring()
 
 
 if __name__ == '__main__':
