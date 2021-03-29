@@ -1,11 +1,15 @@
 import copy
 
+SELECT_UNSIGNED = 0
+MOST_CONSTRAINED_VARIABLE = 1
+MOST_CONSTRAINING_VARIABLE = 2
+
 
 class CSP:
     def __init__(self, heuristic, problem):
         self.heuristic = heuristic
         self.problem = problem
-        self.variables = problem.nodes
+        self.variables = problem.variables
         self.results = []
 
     @staticmethod
@@ -56,17 +60,17 @@ class CSP:
         if len(assignment) == len(variables):
             self.results.append(copy.deepcopy(assignment))
             return True
-        result = False
+        is_complete = False
 
         var = self.select_variable()
         for value in self.problem.domain:
             if var.is_value_valid(value):
                 var.value = value
                 assignment.append(var)
-                result = self.__backtracking_recursive(assignment, variables) or result
+                result = self.__backtracking_recursive(assignment, variables) or is_complete
                 var.value = None
                 assignment.remove(var)
-        return result
+        return is_complete
 
     def set_result(self, variables):
-        self.problem.nodes = variables
+        self.problem.variables = variables

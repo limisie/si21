@@ -1,111 +1,89 @@
-# zbiór zmiennych: X = { narodowość, numer domu, kolor domu, napój, palenie, zwierzę }
-# dziedzina każdej zmiennej:
-# 	narodowość:     D0 = { norweg, anglik, duńczyk, niemiec, szwed } dla X0
-# 	nr domu:        D1 ={ 1, 2, 3, 4, 5 } dla X1
-# 	kolor domu:     D2 ={ czerwony, biały, żółty, niebieski, zielony } dla X2
-# 	napój:          D3 ={ herbata, mleko, woda, piwo, kawa } dla X3
-# 	palenie:        D4 ={ light, cygaro, fajka, bez filtra, mentol } dla X4
-# 	zwierzę:        D5 ={ koty, ptaki, psy, konie, rybki } dla X5
-# ograniczenia: każda wartość może wystąpić tylko raz: AllDiff( x1, x2, x3, x1, x2)
-import copy
 
-VARIABLES = ['nationality', 'nr', 'color', 'drink', 'smoke', 'animal']
-DOMAIN = {
-             'nationality': ['norwegian', 'english', 'dutch', 'german', 'swede'],
-             'nr': [1, 2, 3, 4, 5],
-             'color': ['red', 'white', 'yellow', 'blue', 'green'],
-             'drink': ['tea', 'milk', 'water', 'beer', 'coffee'],
-             'smoke': ['light', 'cigar', 'pipe', 'no filter', 'menthol'],
-             'animal': ['cats', 'birds', 'dogs', 'horses', 'fish']
-        }
+DOMAIN = [1, 2, 3, 4, 5]
+NATIONALITIES = ['norwegian', 'english', 'dutch', 'german', 'swede']
+COLORS = ['red', 'white', 'yellow', 'blue', 'green']
+DRINKS = ['tea', 'milk', 'water', 'beer', 'coffee']
+SMOKES = ['light', 'cigar', 'pipe', 'no filter', 'menthol']
+ANIMALS = ['cats', 'birds', 'dogs', 'horses', 'fish']
+
+ASSIGN = 0
+EQUALS = 1
+ABSOLUTE = 1
+SUBTRACTION = 2
 
 
 class Einstein:
     def __init__(self, constraints):
-        self.domain = copy.deepcopy(DOMAIN)
-        self.entities = []
-        self.constraints = constraints.copy()
+        variables = NATIONALITIES + COLORS + DRINKS + SMOKES + ANIMALS
+        self.variables = {}
+        self.constraints = constraints
 
-        for number in DOMAIN['nr']:
-            self.entities.append(Entity(number, self))
+        for variable in variables:
+            self.variables[variable] = Variable(variable, DOMAIN.copy())
 
-        # for constraint in self.constraints:
-        #     if
+    def __check_constraints(self):
+        for constraint in self.constraints:
+            mode = constraint[0]
+
+            if mode == ASSIGN:
+                variable = self.variables[constraint[1]]
+                value = constraint[2]
+                if self.__assign_value(variable, value):
+                    self.constraints.remove(constraint)
+
+            if mode == EQUALS:
+                variables = [self.variables[constraint[1]], self.variables[constraint[2]]]
+                if self.__set_equals(variables):
+                    self.constraints.remove(constraint)
+
+            if mode == ABSOLUTE:
+                variables = [self.variables[constraint[1]], self.variables[constraint[2]]]
+                result = self.variables[constraint[3]]
+                if self.__check_absolute(variables, result):
+                    self.constraints.remove(constraint)
+
+            if mode == SUBTRACTION:
+                variables = [self.variables[constraint[1]], self.variables[constraint[2]]]
+                result = self.variables[constraint[3]]
+                if self.__check_subtraction(variables, result):
+                    self.constraints.remove(constraint)
+
+    @staticmethod
+    def __assign_value(variable, value):
+        variable.value = value
+        return True
+
+    @staticmethod
+    def __set_equals(variables):
+        variables = sorted(variables, key=Einstein.domain_size)
+        variables[1].domain = variables[0].domain
+        return True
+
+    @staticmethod
+    def __check_absolute(variables, result):
+        return abs(variables[0].value - variables[1].value) == result
+
+    @staticmethod
+    def __check_subtraction(variables, result):
+        return variables[0].value - variables[1].value == result
+
+    @staticmethod
+    def domain_size(variable):
+        return len(variable.domain)
 
     def show(self):
-        for entity in self.entities:
-            print(entity)
-        print(self.domain)
-
-    @staticmethod
-    def variable_of_value(value):
-        for variable in VARIABLES:
-            if value in DOMAIN[variable]:
-                return variable
-        return None
-
-    @staticmethod
-    def is_failure(variables):
-        for variable in variables:
-            for neighbour in variable.connected_variables:
-                if variable.value == neighbour.value:
-                    return True
-        return False
+        for variable in self.variables:
+            print(variable)
 
 
-class Constraint:
-    def __init__(self, values):
-        self.constraint = {
-            'nationality': None,
-            'nr': None,
-            'color': None,
-            'drink': None,
-            'smoke': None,
-            'animal': None,
-            'neighbour': Constraint([])
-        }
-
-        for value in values:
-            self.constraint[value[0]] = value[1]
-
-
-class Entity:
-    def __init__(self, number, problem):
-        self.problem = problem
-        self.problem.domain['nr'].remove(number)
-
-        self.variables = {
-            'nationality': None,
-            'nr': number,
-            'color': None,
-            'drink': None,
-            'smoke': None,
-            'animal': None
-        }
-
-    def is_value_of_variable_valid(self, variable, value):
-        return value in self.problem.domain[variable]
+class Variable:
+    def __init__(self, name, domain):
+        self.name = name
+        self.domain = domain
+        self.value = None
 
     def is_value_valid(self, value):
-        variable = Einstein.variable_of_value(value)
-        return self.is_value_of_variable_valid(variable, value)
-
-    def set_value_of_variable(self, variable, value):
-        if self.is_value_of_variable_valid(variable, value):
-            self.variables[variable] = value
-            self.problem.domain[variable].remove(value)
-
-    def set_value(self, value):
-        variable = Einstein.variable_of_value(value)
-        self.set_value_of_variable(variable, value)
+        return value in self.domain
 
     def __str__(self):
-        return f'\n({self.variables["nr"]}, ' \
-               f'{self.variables["nationality"]},' \
-               f'{self.variables["color"]},' \
-               f'{self.variables["drink"]},' \
-               f'{self.variables["smoke"]},' \
-               f'{self.variables["animal"]})'
-
-    def __repr__(self):
-        return f'\n({self.variables["nr"]})'
+        return f'\n({self.name}: {self.domain})'

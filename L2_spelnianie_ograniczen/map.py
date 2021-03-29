@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 class Map:
     def __init__(self, n, domain):
         self.n = n
-        self.nodes = []
+        self.variables = []
         self.edges = set()
         self.graph = None
         self.color_map = []
         self.domain = domain.copy()
 
         for node in range(self.n):
-            self.nodes.append(Node(node, domain))
+            self.variables.append(Variable(node, domain))
 
         self.__init_planar_graph()
 
@@ -28,15 +28,15 @@ class Map:
                     self.edges.remove((node, node_to_connect))
 
                 if connected:
-                    self.nodes[node].connect(self.nodes[node_to_connect])
-                    self.nodes[node_to_connect].connect(self.nodes[node])
+                    self.variables[node].connect(self.variables[node_to_connect])
+                    self.variables[node_to_connect].connect(self.variables[node])
 
         self.graph = nx.Graph(self.edges)
 
     def __set_graph_colors(self):
         self.color_map.clear()
         for node in self.graph:
-            variable = self.nodes[node]
+            variable = self.variables[node]
             if variable.value is not None:
                 self.color_map.append(variable.value)
             else:
@@ -56,7 +56,7 @@ class Map:
         return False
 
 
-class Node:
+class Variable:
     def __init__(self, name, domain):
         self.name = name
         self.connected_variables = set()
