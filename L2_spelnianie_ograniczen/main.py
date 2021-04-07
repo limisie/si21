@@ -1,12 +1,10 @@
-from csp import *
 from map_coloring import *
 from einstein import *
-import constraint
 
 
 def map_coloring():
     problem = Map(SELECT_UNSIGNED, 5, 4)
-    problem.backtracking()
+    problem.backtracking_recursive()
     # problem.backtracking_iterative()
     print(len(problem.results))
     for result in problem.results:
@@ -33,11 +31,21 @@ def einstein():
         (EQUALS, 'menthol', 'beer'),
         (EQUALS, 'green', 'coffee')]
 
-    problem = Einstein(constraints)
+    problem = Einstein(SELECT_UNSIGNED, constraints)
+    # problem.show()
+
+    problem.backtracking_recursive()
+    # problem.backtracking_iterative()
+    print(len(problem.results))
+    for result in problem.results:
+        print(result)
+        problem.set_result(result)
+        problem.show()
 
 
 def main():
     map_coloring()
+    einstein()
 
 
 if __name__ == '__main__':

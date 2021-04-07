@@ -1,3 +1,4 @@
+from csp import *
 
 DOMAIN = [1, 2, 3, 4, 5]
 NATIONALITIES = ['norwegian', 'english', 'dutch', 'german', 'swede']
@@ -5,85 +6,72 @@ COLORS = ['red', 'white', 'yellow', 'blue', 'green']
 DRINKS = ['tea', 'milk', 'water', 'beer', 'coffee']
 SMOKES = ['light', 'cigar', 'pipe', 'no filter', 'menthol']
 ANIMALS = ['cats', 'birds', 'dogs', 'horses', 'fish']
-
-ASSIGN = 0
-EQUALS = 1
-ABSOLUTE = 1
-SUBTRACTION = 2
+FEATURES = [NATIONALITIES, COLORS, DRINKS, SMOKES, ANIMALS]
 
 
-class Einstein:
-    def __init__(self, constraints):
-        variables = NATIONALITIES + COLORS + DRINKS + SMOKES + ANIMALS
-        self.variables = {}
-        self.constraints = constraints
+class Einstein(CSP):
+    def __init__(self, heuristic, constraints):
+        super().__init__(heuristic)
+        self.domain = DOMAIN.copy()
 
-        for variable in variables:
-            self.variables[variable] = Variable(variable, DOMAIN.copy())
+        for feature in FEATURES:
+            new_constraints = []
+            for variable_name in feature:
+                variable = Feature(variable_name, DOMAIN.copy(), [])
+                constraint = Constraint(NOT_EQUALS, variable)
 
-    def __check_constraints(self):
-        for constraint in self.constraints:
+                self.variables.append(variable)
+                new_constraints.append(constraint)
+
+            for i, variable_name in enumerate(feature):
+                temp = new_constraints.copy()
+                temp.pop(i)
+                variable = self.get_variable(variable_name)
+                variable.constraints = temp
+
+        for constraint in constraints:
             mode = constraint[0]
 
-            if mode == ASSIGN:
-                variable = self.variables[constraint[1]]
-                value = constraint[2]
-                if self.__assign_value(variable, value):
-                    self.constraints.remove(constraint)
+            if mode is ASSIGN:
+                variable_name, value = constraint[1:]
+                variable = self.get_variable(variable_name)
+                new_constraint = Constraint(0, value=value)
 
-            if mode == EQUALS:
-                variables = [self.variables[constraint[1]], self.variables[constraint[2]]]
-                if self.__set_equals(variables):
-                    self.constraints.remove(constraint)
+                variable.add_constraint(new_constraint)
 
-            if mode == ABSOLUTE:
-                variables = [self.variables[constraint[1]], self.variables[constraint[2]]]
-                result = self.variables[constraint[3]]
-                if self.__check_absolute(variables, result):
-                    self.constraints.remove(constraint)
+            if mode is EQUALS:
+                variable_names = constraint[1:]
+                variable1 = self.get_variable(variable_names[0])
+                variable2 = self.get_variable(variable_names[1])
+                new_constraint1 = Constraint(1, variable=variable2)
+                new_constraint2 = Constraint(1, variable=variable1)
 
-            if mode == SUBTRACTION:
-                variables = [self.variables[constraint[1]], self.variables[constraint[2]]]
-                result = self.variables[constraint[3]]
-                if self.__check_subtraction(variables, result):
-                    self.constraints.remove(constraint)
+                variable1.add_constraint(new_constraint1)
+                variable2.add_constraint(new_constraint2)
 
-    @staticmethod
-    def __assign_value(variable, value):
-        variable.value = value
-        return True
+            if mode is ABSOLUTE:
+                variable_names = constraint[1:3]
+                value = constraint[3]
+                variable1 = self.get_variable(variable_names[0])
+                variable2 = self.get_variable(variable_names[1])
 
-    @staticmethod
-    def __set_equals(variables):
-        variables = sorted(variables, key=Einstein.domain_size)
-        variables[1].domain = variables[0].domain
-        return True
+                variable1.add_constraint(
+                    Constraint(3, variable2, value))
+                variable2.add_constraint(
+                    Constraint(3, variable1, value))
 
-    @staticmethod
-    def __check_absolute(variables, result):
-        return abs(variables[0].value - variables[1].value) == result
+            if mode is SUBTRACTION:
+                variable_names = constraint[1:3]
+                value = constraint[3]
+                variable1 = self.get_variable(variable_names[0])
+                variable2 = self.get_variable(variable_names[1])
 
-    @staticmethod
-    def __check_subtraction(variables, result):
-        return variables[0].value - variables[1].value == result
-
-    @staticmethod
-    def domain_size(variable):
-        return len(variable.domain)
-
-    def show(self):
-        for variable in self.variables:
-            print(variable)
+                variable1.add_constraint(
+                    Constraint(4, variable2, value))
+                variable2.add_constraint(
+                    Constraint(4, variable1, -value))
 
 
-class Variable:
-    def __init__(self, name, domain):
-        self.name = name
-        self.domain = domain
-        self.value = None
-
-    def is_value_valid(self, value):
-        return value in self.domain
-
-    def __str__(self):
-        return f'\n({self.name}: {self.domain})'
+class Feature(Variable):
+    def __init__(self, name, domain, constraints):
+        super().__init__(name, domain, constraints)

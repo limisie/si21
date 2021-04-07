@@ -58,4 +58,4 @@ class Node(Variable):
         super().__init__(name, domain, constraints)
 
     def connect(self, node):
-        self.constraints.append((NOT_EQUALS, node))
+        self.constraints.append(Constraint(NOT_EQUALS, variable=node))

@@ -1,13 +1,15 @@
 import copy
 from itertools import product
 
-
 SELECT_UNSIGNED = 0
 MOST_CONSTRAINED_VARIABLE = 1
 MOST_CONSTRAINING_VARIABLE = 2
 
-EQUALS = 0
-NOT_EQUALS = 1
+ASSIGN = 0
+EQUALS = 1
+NOT_EQUALS = 2
+ABSOLUTE = 3
+SUBTRACTION = 4
 
 
 class CSP:
@@ -36,7 +38,7 @@ class CSP:
     def constraining_variables(variable):
         constraining_variables = 0
         for constraint in variable.constraints:
-            if constraint[1].value is None:
+            if constraint.variable is not None and constraint.variable.value is None:
                 constraining_variables += 1
         return constraining_variables
 
@@ -66,15 +68,12 @@ class CSP:
         }[self.heuristic][0]
 
     def backtracking_iterative(self):
-        temp = product(self.domain, repeat=len(self.variables))
+        temp = product(self.domain, repeat=4)
 
         for solution in temp:
             for i, value in enumerate(solution):
-                if not self.variables[i].value == value:
-                    self.variables[i].value = value
+                self.variables[i].value = value
             if self.is_valid(self.variables):
-                print(self.variables)
-                print()
                 self.results.append(copy.deepcopy(self.variables))
 
     def backtracking_recursive(self):
@@ -100,6 +99,22 @@ class CSP:
     def set_result(self, variables):
         self.variables = variables
 
+    def get_index(self, variable_name):
+        for i, variable in enumerate(self.variables):
+            if variable.name == variable_name:
+                return i
+        return -1
+
+    def get_variable(self, variable_name):
+        for variable in self.variables:
+            if variable.name == variable_name:
+                return variable
+        return None
+
+    def show(self):
+        for variable in self.variables:
+            print(variable)
+
 
 class Variable:
     def __init__(self, name, domain, constraints):
@@ -108,26 +123,14 @@ class Variable:
         self.constraints = constraints
         self.value = None
 
-    def is_value_valid(self, value):
-        for i, constraint in enumerate(self.constraints):
-            if not self.__does_satisfy(i, value):
-                return False
-        return True
-
-    def __does_satisfy(self, index, value):
-        mode, variable = self.constraints[index]
-        satisfies = False
-
-        if mode is EQUALS:
-            satisfies = variable.value == value
-
-        if mode is NOT_EQUALS:
-            satisfies = variable.value != value
-
-        return satisfies
-
     def is_valid(self):
         return self.is_value_valid(self.value)
+
+    def is_value_valid(self, value):
+        for constraint in self.constraints:
+            if not constraint.does_satisfy(value):
+                return False
+        return True
 
     def is_in_domain(self, value):
         return value in self.domain
@@ -137,12 +140,64 @@ class Variable:
             self.value = value
             self.domain = [value]
 
-    def revise(self, value):
-        if self.is_value_valid(value):
-            self.domain.remove(value)
+    def add_constraint(self, constraint):
+        self.constraints.append(constraint)
 
     def __str__(self):
-        return f'\n({self.name}: {self.value}, {self.domain})'
+        return f'{self.name}: {self.value}, {self.domain}; {self.constraints}'
 
     def __repr__(self):
-        return f'\n({self.name}: {self.value})'
+        return f'({self.name}: {self.value})'
+
+
+class Constraint:
+
+    modes = ['ASSIGN',
+             'EQUALS',
+             'NOT_EQUALS',
+             'ABSOLUTE',
+             'SUBTRACTION']
+
+    def __init__(self, mode, variable=None, value=0):
+        self.mode = mode
+        self.variable = variable
+        self.value = value
+
+    def does_satisfy(self, value):
+        satisfies = False
+        checked = False
+
+        if self.mode is EQUALS:
+            if self.variable.value is not None:
+                satisfies = value == self.variable.value
+                checked = True
+
+        if self.mode is NOT_EQUALS:
+            if self.variable.value is not None:
+                satisfies = value != self.variable.value
+                checked = True
+
+        if self.mode is ASSIGN:
+            satisfies = value == self.value
+            checked = True
+
+        if self.mode is SUBTRACTION:
+            if self.variable.value is not None:
+                satisfies = value - self.variable.value == self.value
+                checked = True
+
+        if self.mode is ABSOLUTE:
+            if self.variable.value is not None:
+                satisfies = abs(value - self.variable.value) == self.value
+                checked = True
+
+        return satisfies or not checked
+
+    def __str__(self):
+        if self.mode is ASSIGN:
+            return f'({ Constraint.modes[self.mode] }: { self.value })'
+        else:
+            return f'({ Constraint.modes[self.mode] }: { self.variable.name }, { self.value })'
+
+    def __repr__(self):
+        return self.__str__()
