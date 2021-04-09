@@ -4,8 +4,8 @@
 #include "Helper/CRandom.h"
 #include "Optimization/COptimizer.h"
 
-#define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/zad1.txt"
-#define OUTPUT_FILE_PATH "/Users/limi/Desktop/INF/6_SI/L1_algorytmy_genetyczne/Test_Cases/output.txt"
+#define TEST_FILE_PATH "/Users/limi/Desktop/INF/6_SI/si21/L1_algorytmy_genetyczne/Test_Cases/zad1.txt"
+#define OUTPUT_FILE_PATH "/Users/limi/Desktop/INF/6_SI/si21/L1_algorytmy_genetyczne/Test_Cases/output.txt"
 
 void vRunRandom() {
     CRandom cRandom = CRandom();
@@ -36,10 +36,11 @@ void vRunRandomOptimizer() {
     std::cout << cPcbProblem->sToString() << "\n";
 
     double *pdPenalties;
-    pdPenalties = new double[VIOLATION_TYPES] {100000, 100, 10, 1, 1};
+    pdPenalties = new double[VIOLATION_TYPES]{100000, 100, 1000, 1, 1};
 
-    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 100);
-    cOptimizer.vSetNumberOfIterations(1000);
+    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 50);
+    cOptimizer.vSetNumberOfIterations(100);
+    cOptimizer.vSetFileName(OUTPUT_FILE_PATH);
     CIndividual *pcBest = cOptimizer.pcRandom();
     std::cout << pcBest->sToString() << std::endl;
 }
@@ -52,15 +53,15 @@ void vRunOptimizer() {
     std::cout << cPcbProblem->sToString() << "\n";
 
     double *pdPenalties;
-    pdPenalties = new double[VIOLATION_TYPES] {100000, 100, 1000, 1, 1};
+    pdPenalties = new double[VIOLATION_TYPES]{100000, 100, 1000, 1, 1};
 
-    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 300);
-    cOptimizer.vSetNumberOfIterations(300);
+    COptimizer cOptimizer = COptimizer(cPcbProblem, pdPenalties, 50);
+    cOptimizer.vSetNumberOfIterations(100);
     cOptimizer.vSetFileName(OUTPUT_FILE_PATH);
     CIndividual *pcBest = cOptimizer.pcOptimize();
     std::cout << pcBest->sToString() << std::endl;
 }
 
 int main() {
-    vRunOptimizer();
+    vRunRandomOptimizer();
 }

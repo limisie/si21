@@ -41,8 +41,6 @@ private:
 
     int i_get_random_step();
 
-    void vMutate(int iMaxX, int iMaxY);
-
     void vMutate(int iMaxX, int iMaxY, int iMutationPower);
 };
 

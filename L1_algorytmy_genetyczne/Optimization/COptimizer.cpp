@@ -17,8 +17,8 @@ COptimizer::COptimizer(CPcbProblem *pcProblem, double *pdPenalties, int iPopulat
     i_iterations = 0;
     d_expected_fitness = 0;
 
-    d_tournament_percentage = 0.8;
-    d_crossover_probability = 0.8;
+    d_tournament_percentage = 0.7;
+    d_crossover_probability = 0.75;
     d_mutation_probability = 0.25;
 }
 
@@ -30,6 +30,11 @@ COptimizer::~COptimizer() {
 
 CIndividual *COptimizer::pcRandom() {
     while (!b_stop_condition()) {
+
+        double d_best = std::numeric_limits<double>::max();
+        double d_worst = 0;
+        double d_sum = 0;
+
         for (int ii = 0; ii < pc_population->iGetSize(); ii++) {
             CIndividual *pc_individual = pc_population->pcInitializeRandomIndividual(ii);
             double d_fitness = d_grade_individual(pc_individual);
@@ -38,7 +43,27 @@ CIndividual *COptimizer::pcRandom() {
                 pc_population->vSetBestIndividual(new CIndividual(*pc_individual));
             }
         }
+
+        if (SAVE_TO_FILE) {
+            for (int ii = 0; ii < pc_population->iGetSize(); ++ii) {
+                double d_fitness = pc_population->pcGetIndividual(ii)->dGetFitness();
+                if (d_fitness > d_worst) {
+                    d_worst = d_fitness;
+                }
+                if (d_fitness < d_best) {
+                    d_best = d_fitness;
+                }
+                d_sum += d_fitness;
+            }
+
+            v_write_population_data_to_file(pc_population->iGetGeneration(),
+                                            d_best,
+                                            d_worst,
+                                            d_sum / pc_population->iGetSize());
+        }
+
         pc_population->vDie();
+
     }
     return pc_population->pcGetBestIndividual();
 }
@@ -94,9 +119,6 @@ CIndividual *COptimizer::pcOptimize() {
                     d_best = d_fitness;
                 }
                 d_sum += d_fitness;
-            }
-            if (d_worst < 0) {
-                continue;
             }
 
             v_write_population_data_to_file(pc_population->iGetGeneration(),

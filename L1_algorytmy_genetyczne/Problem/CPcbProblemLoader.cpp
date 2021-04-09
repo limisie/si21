@@ -71,7 +71,7 @@ bool CPcbProblemLoader::b_close(bool bInputFile) {
 
 void CPcbProblemLoader::vSaveLine(std::string sFileName, int iGeneration, double dBest, double dWorst, double dAverage) {
     b_open_to_write(sFileName);
-    std::string s_line = std::to_string((int)iGeneration) + ";" + std::to_string((int)dBest) + ";" + std::to_string((int)dWorst) + ";" + std::to_string((int)dAverage);
+    std::string s_line = std::to_string((int)iGeneration) + ";" + std::to_string(static_cast<std::int64_t>(dBest)) + ";" + std::to_string(static_cast<std::int64_t>(dWorst)) + ";" + std::to_string(static_cast<std::int64_t>(dAverage));
 
     s_output_file << s_line << std::endl;
     b_close(false);
