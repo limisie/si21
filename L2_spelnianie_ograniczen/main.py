@@ -5,7 +5,6 @@ from einstein import *
 def map_coloring():
     problem = Map(SELECT_UNSIGNED, 5, 4)
     problem.backtracking_recursive()
-    # problem.backtracking_iterative()
     print(len(problem.results))
     for result in problem.results:
         print(result)
@@ -32,10 +31,9 @@ def einstein():
         (EQUALS, 'green', 'coffee')]
 
     problem = Einstein(SELECT_UNSIGNED, constraints)
-    # problem.show()
+    problem.show()
 
     problem.backtracking_recursive()
-    # problem.backtracking_iterative()
     print(len(problem.results))
     for result in problem.results:
         print(result)

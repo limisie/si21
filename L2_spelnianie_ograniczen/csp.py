@@ -1,5 +1,5 @@
 import copy
-from itertools import product
+from abc import ABC
 
 SELECT_UNSIGNED = 0
 MOST_CONSTRAINED_VARIABLE = 1
@@ -12,23 +12,39 @@ ABSOLUTE = 3
 SUBTRACTION = 4
 
 
-class CSP:
+class CSP(ABC):
     def __init__(self, heuristic):
         self.heuristic = heuristic
         self.variables = []
         self.results = []
         self.domain = []
 
-    @staticmethod
-    def is_valid(variables):
-        for variable in variables:
-            if not variable.is_valid():
-                return False
-        return True
+    def backtracking_recursive(self):
+        return self.__backtracking_recursive([], self.variables)
 
-    @staticmethod
-    def is_set(variable):
-        return variable.value is None
+    def __backtracking_recursive(self, assignment, variables):
+        if len(assignment) == len(variables):
+            self.results.append(copy.deepcopy(assignment))
+            return True
+        result = False
+
+        for value in self.domain:
+            var = self.select_variable()
+
+            if var.is_value_valid(value):
+                var.value = value
+                assignment.append(var)
+                result = self.__backtracking_recursive(assignment, variables) or result
+                var.value = None
+                assignment.remove(var)
+        return result
+
+    def select_variable(self):
+        return {
+            0: self.__unassigned_variables(),
+            1: self.__minimum_remaining_values(),
+            2: self.__most_constraining_values()
+        }[self.heuristic][0]
 
     @staticmethod
     def remaining_values(variable):
@@ -60,44 +76,19 @@ class CSP:
     def __most_constraining_values(self):
         return sorted(self.__unassigned_variables(), key=self.constraining_variables)
 
-    def select_variable(self):
-        return {
-            0: self.__unassigned_variables(),
-            1: self.__minimum_remaining_values(),
-            2: self.__most_constraining_values()
-        }[self.heuristic][0]
-
-    def backtracking_iterative(self):
-        temp = product(self.domain, repeat=4)
-
-        for solution in temp:
-            for i, value in enumerate(solution):
-                self.variables[i].value = value
-            if self.is_valid(self.variables):
-                self.results.append(copy.deepcopy(self.variables))
-
-    def backtracking_recursive(self):
-        return self.__backtracking_recursive([], self.variables)
-
-    def __backtracking_recursive(self, assignment, variables):
-        if len(assignment) == len(variables):
-            self.results.append(copy.deepcopy(assignment))
-            return True
-        result = False
-
-        for value in self.domain:
-            var = self.select_variable()
-
-            if var.is_value_valid(value):
-                var.value = value
-                assignment.append(var)
-                result = self.__backtracking_recursive(assignment, variables) or result
-                var.value = None
-                assignment.remove(var)
-        return result
-
     def set_result(self, variables):
         self.variables = variables
+
+    @staticmethod
+    def is_valid(variables):
+        for variable in variables:
+            if not variable.is_valid():
+                return False
+        return True
+
+    @staticmethod
+    def is_set(variable):
+        return variable.value is None
 
     def get_index(self, variable_name):
         for i, variable in enumerate(self.variables):
@@ -116,7 +107,7 @@ class CSP:
             print(variable)
 
 
-class Variable:
+class Variable(ABC):
     def __init__(self, name, domain, constraints):
         self.name = name
         self.domain = domain
