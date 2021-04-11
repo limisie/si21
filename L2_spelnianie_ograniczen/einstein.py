@@ -10,8 +10,8 @@ FEATURES = [NATIONALITIES, COLORS, DRINKS, SMOKES, ANIMALS]
 
 
 class Einstein(CSP):
-    def __init__(self, heuristic, constraints):
-        super().__init__(heuristic)
+    def __init__(self, constraints):
+        super().__init__()
         self.domain = DOMAIN.copy()
 
         for feature in FEATURES:

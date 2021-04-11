@@ -1,15 +1,21 @@
 from map_coloring import *
 from einstein import *
+from solvers import Backtracking
+
+
+def solve_and_show_results(problem):
+    solver = Backtracking(problem)
+    solver.backtracking_recursive()
+    print(len(solver.results))
+    for result in solver.results:
+        print(result)
+        problem.set_result(result)
+        problem.show()
 
 
 def map_coloring():
     problem = Map(SELECT_UNSIGNED, 5, 4)
-    problem.backtracking_recursive()
-    print(len(problem.results))
-    for result in problem.results:
-        print(result)
-        problem.set_result(result)
-        problem.show()
+    solve_and_show_results(problem)
 
 
 def einstein():
@@ -30,15 +36,10 @@ def einstein():
         (EQUALS, 'menthol', 'beer'),
         (EQUALS, 'green', 'coffee')]
 
-    problem = Einstein(SELECT_UNSIGNED, constraints)
+    problem = Einstein(constraints)
     problem.show()
 
-    problem.backtracking_recursive()
-    print(len(problem.results))
-    for result in problem.results:
-        print(result)
-        problem.set_result(result)
-        problem.show()
+    solve_and_show_results(problem)
 
 
 def main():

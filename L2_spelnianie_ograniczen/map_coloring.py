@@ -8,7 +8,7 @@ COLORS = ['orange', 'y', 'skyblue', 'rebeccapurple']
 
 class Map(CSP):
     def __init__(self, heuristic, n, m):
-        super().__init__(heuristic)
+        super().__init__()
         self.domain = COLORS[:m]
 
         self.graph = None

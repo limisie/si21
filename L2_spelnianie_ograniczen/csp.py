@@ -1,4 +1,3 @@
-import copy
 from abc import ABC
 
 SELECT_UNSIGNED = 0
@@ -13,68 +12,9 @@ SUBTRACTION = 4
 
 
 class CSP(ABC):
-    def __init__(self, heuristic):
-        self.heuristic = heuristic
+    def __init__(self):
         self.variables = []
-        self.results = []
         self.domain = []
-
-    def backtracking_recursive(self):
-        return self.__backtracking_recursive([], self.variables)
-
-    def __backtracking_recursive(self, assignment, variables):
-        if len(assignment) == len(variables):
-            self.results.append(copy.deepcopy(assignment))
-            return True
-        result = False
-
-        for value in self.domain:
-            var = self.select_variable()
-
-            if var.is_value_valid(value):
-                var.value = value
-                assignment.append(var)
-                result = self.__backtracking_recursive(assignment, variables) or result
-                var.value = None
-                assignment.remove(var)
-        return result
-
-    def select_variable(self):
-        return {
-            0: self.__unassigned_variables(),
-            1: self.__minimum_remaining_values(),
-            2: self.__most_constraining_values()
-        }[self.heuristic][0]
-
-    @staticmethod
-    def remaining_values(variable):
-        return len(variable.domain)
-
-    @staticmethod
-    def constraining_variables(variable):
-        constraining_variables = 0
-        for constraint in variable.constraints:
-            if constraint.variable is not None and constraint.variable.value is None:
-                constraining_variables += 1
-        return constraining_variables
-
-    @staticmethod
-    def least_constraining_value(variable):
-        constrains = [0] * len(variable.domain)
-        for neighbour in variable.connected_variables:
-            for i, value in enumerate(variable.domain):
-                if value in neighbour.domain:
-                    constrains[i] += 1
-        return variable.domain[constrains.index(min(constrains))]
-
-    def __unassigned_variables(self):
-        return list(filter(self.is_set, self.variables))
-
-    def __minimum_remaining_values(self):
-        return sorted(self.__unassigned_variables(), key=self.remaining_values)
-
-    def __most_constraining_values(self):
-        return sorted(self.__unassigned_variables(), key=self.constraining_variables)
 
     def set_result(self, variables):
         self.variables = variables
@@ -85,10 +25,6 @@ class CSP(ABC):
             if not variable.is_valid():
                 return False
         return True
-
-    @staticmethod
-    def is_set(variable):
-        return variable.value is None
 
     def get_index(self, variable_name):
         for i, variable in enumerate(self.variables):
@@ -114,8 +50,13 @@ class Variable(ABC):
         self.constraints = constraints
         self.value = None
 
-    def is_valid(self):
-        return self.is_value_valid(self.value)
+    def set_value(self, value):
+        if self.is_value_valid(value):
+            self.value = value
+            self.domain = [value]
+
+    def is_set(self):
+        return self.value is not None
 
     def is_value_valid(self, value):
         for constraint in self.constraints:
@@ -123,16 +64,35 @@ class Variable(ABC):
                 return False
         return True
 
+    def is_valid(self):
+        return self.is_value_valid(self.value)
+
     def is_in_domain(self, value):
         return value in self.domain
 
-    def set_value(self, value):
-        if self.is_value_valid(value):
-            self.value = value
-            self.domain = [value]
-
     def add_constraint(self, constraint):
         self.constraints.append(constraint)
+
+    def remaining_values(self):
+        return len(self.domain)
+
+    def active_constraints(self):
+        constrained_variables = 0
+
+        for constraint in self.constraints:
+            if not constraint.is_unary() and not constraint.variable.is_set():
+                constrained_variables += 1
+
+        return constrained_variables
+
+    def constrained_variables_size(self, value):
+        constrained_variables = 0
+
+        for constraint in self.constraints:
+            if not constraint.is_unary() and value in constraint.variable.domain:
+                constrained_variables += 1
+
+        return constrained_variables
 
     def __str__(self):
         return f'{self.name}: {self.value}, {self.domain}; {self.constraints}'
@@ -183,6 +143,9 @@ class Constraint:
                 checked = True
 
         return satisfies or not checked
+
+    def is_unary(self):
+        return self.variable is None
 
     def __str__(self):
         if self.mode is ASSIGN:
