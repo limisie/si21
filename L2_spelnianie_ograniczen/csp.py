@@ -38,6 +38,9 @@ class CSP(ABC):
                 return variable
         return None
 
+    def reset_domain(self, variable):
+        variable.domain = self.domain.copy()
+
     def show(self):
         for variable in self.variables:
             print(variable)
@@ -51,9 +54,8 @@ class Variable(ABC):
         self.value = None
 
     def set_value(self, value):
-        if self.is_value_valid(value):
-            self.value = value
-            self.domain = [value]
+        self.value = value
+        self.domain = [value]
 
     def is_set(self):
         return self.value is not None
@@ -63,9 +65,6 @@ class Variable(ABC):
             if not constraint.does_satisfy(value):
                 return False
         return True
-
-    def is_valid(self):
-        return self.is_value_valid(self.value)
 
     def is_in_domain(self, value):
         return value in self.domain
@@ -77,13 +76,16 @@ class Variable(ABC):
         return len(self.domain)
 
     def active_constraints(self):
-        constrained_variables = 0
+        return len(self.get_unset_constrained_variables())
+
+    def get_unset_constrained_variables(self):
+        variables = set()
 
         for constraint in self.constraints:
             if not constraint.is_unary() and not constraint.variable.is_set():
-                constrained_variables += 1
+                variables.add(constraint.variable)
 
-        return constrained_variables
+        return list(variables)
 
     def constrained_variables_size(self, value):
         constrained_variables = 0
@@ -144,8 +146,60 @@ class Constraint:
 
         return satisfies or not checked
 
+    def do_satisfy(self, xi_value, xj_value):
+        satisfies = False
+        checked = False
+
+        if self.mode is EQUALS:
+            satisfies = xi_value == xj_value
+            checked = True
+
+        if self.mode is NOT_EQUALS:
+            satisfies = xi_value != xj_value
+            checked = True
+
+        if self.mode is ASSIGN:
+            satisfies = xi_value == self.value
+            checked = True
+
+        if self.mode is SUBTRACTION:
+            satisfies = xi_value - xj_value == self.value
+            checked = True
+
+        if self.mode is ABSOLUTE:
+            satisfies = abs(xi_value - xj_value) == self.value
+            checked = True
+
+        return satisfies or not checked
+
     def is_unary(self):
         return self.variable is None
+
+    def propagate_value(self, value):
+        if self.mode is EQUALS:
+            if value in self.variable.domain:
+                self.variable.domain = [value]
+
+        if self.mode is NOT_EQUALS:
+            if value in self.variable.domain:
+                self.variable.domain.remove(value)
+
+        if self.mode is SUBTRACTION:
+            if value - self.value in self.variable.domain:
+                self.variable.domain = [value - self.value]
+
+        if self.mode is ABSOLUTE:
+            new_domain = []
+
+            new_value = value - self.value
+            if new_value in self.variable.domain:
+                new_domain.append(new_value)
+
+            new_value = value + self.value
+            if new_value in self.variable.domain:
+                new_domain.append(new_value)
+
+            self.variable.domain = new_domain
 
     def __str__(self):
         if self.mode is ASSIGN:

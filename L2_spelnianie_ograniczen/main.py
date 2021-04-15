@@ -5,6 +5,10 @@ from solvers import Backtracking
 
 def solve_and_show_results(problem):
     solver = Backtracking(problem)
+    solver.set_propagation_mode(2)
+    solver.set_variable_selector(2)
+    solver.set_value_selector(1)
+
     solver.backtracking_recursive()
     print(len(solver.results))
     for result in solver.results:
@@ -14,7 +18,7 @@ def solve_and_show_results(problem):
 
 
 def map_coloring():
-    problem = Map(SELECT_UNSIGNED, 5, 4)
+    problem = Map(5, 4)
     solve_and_show_results(problem)
 
 
