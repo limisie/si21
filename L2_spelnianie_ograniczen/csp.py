@@ -76,16 +76,13 @@ class Variable(ABC):
         return len(self.domain)
 
     def active_constraints(self):
-        return len(self.get_unset_constrained_variables())
-
-    def get_unset_constrained_variables(self):
         variables = set()
 
         for constraint in self.constraints:
             if not constraint.is_unary() and not constraint.variable.is_set():
                 variables.add(constraint.variable)
 
-        return list(variables)
+        return len(variables)
 
     def constrained_variables_size(self, value):
         constrained_variables = 0
@@ -176,17 +173,25 @@ class Constraint:
         return self.variable is None
 
     def propagate_value(self, value):
+        empty = False
+
         if self.mode is EQUALS:
             if value in self.variable.domain:
                 self.variable.domain = [value]
+            else:
+                empty = True
 
         if self.mode is NOT_EQUALS:
             if value in self.variable.domain:
                 self.variable.domain.remove(value)
+                if not self.variable.domain:
+                    empty = True
 
         if self.mode is SUBTRACTION:
             if value - self.value in self.variable.domain:
                 self.variable.domain = [value - self.value]
+            else:
+                empty = True
 
         if self.mode is ABSOLUTE:
             new_domain = []
@@ -200,6 +205,11 @@ class Constraint:
                 new_domain.append(new_value)
 
             self.variable.domain = new_domain
+
+            if not new_domain:
+                empty = True
+
+        return empty
 
     def __str__(self):
         if self.mode is ASSIGN:

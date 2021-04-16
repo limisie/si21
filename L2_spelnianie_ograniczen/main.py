@@ -1,20 +1,22 @@
 from map_coloring import *
 from einstein import *
-from solvers import Backtracking
+from solvers import Backtracking, ForwardChecking, AC3
 
 
 def solve_and_show_results(problem):
     solver = Backtracking(problem)
-    solver.set_propagation_mode(2)
-    solver.set_variable_selector(2)
+    # solver = ForwardChecking(problem)
+    # solver = AC3(problem)
+
+    solver.set_variable_selector(1)
     solver.set_value_selector(1)
 
-    solver.backtracking_recursive()
+    solver.recursive()
     print(len(solver.results))
     for result in solver.results:
         print(result)
-        problem.set_result(result)
-        problem.show()
+        # problem.set_result(result[2])
+        # problem.show()
 
 
 def map_coloring():
@@ -41,7 +43,7 @@ def einstein():
         (EQUALS, 'green', 'coffee')]
 
     problem = Einstein(constraints)
-    problem.show()
+    # problem.show()
 
     solve_and_show_results(problem)
 
