@@ -5,54 +5,77 @@ RANDOM = 1
 
 
 class Mancala:
-    def __init__(self, player1, player2, first_move=DEFAULT, pits=6, seed=4):
-        player1.bank = pits
-        player2.bank = (2 * pits) + 1
+    def __init__(self, player1, player2, pits=6, seed=4, first_move=DEFAULT, first_player=DEFAULT):
+        player1.setup(pits, self)
+        player2.setup((2 * pits) + 1, self)
         self.players = (player1, player2)
         self.pits = pits
         self.board = [seed] * pits + [0] + [seed] * pits + [0]
 
+        self.first_move = {
+            DEFAULT: False,
+            RANDOM: True
+        }[first_move]
+
         self.current_player_index = {
             DEFAULT: 0,
             RANDOM: random.randint(0, 1)
-        }[first_move]
+        }[first_player]
         self.round_blocked = False
 
+    def end_condition(self):
+        return not self.is_move_possible() and not self.round_blocked
+
     def run(self):
-        while self.is_move_possible() or self.round_blocked:
-            self.round()
-            # print(self)
+        while not self.end_condition():
+            if not self.round_blocked:
+                self.turn()
+            else:
+                self.round_blocked = False
+                self.switch_players()
         self.count_points()
         self.announce_winner()
 
-    def round(self):
+    def turn(self):
+        player = self.players[self.current_player_index]
+        moves = self.get_legal_moves(player)
+
+        if self.first_move:
+            move = moves[random.randint(0, len(moves))]
+            self.first_move = False
+        else:
+            move = player.select_pit(moves)
+
+        self.move(move)
+        print(f'{player}: {move}')
+        print(self)
+
+    def move(self, pit):
         if not self.round_blocked:
-            self.move()
+            player = self.players[self.current_player_index]
+            opponent = self.get_opponent(player)
+            seeds = self.board[pit]
+            self.board[pit] = 0
+            while seeds > 0:
+                pit = (pit + 1) % len(self.board)
+                if not pit == opponent.bank:
+                    self.board[pit] += 1
+                    seeds -= 1
+
+            self.capture(pit, player)
+
+            if pit == player.bank:
+                self.round_blocked = True
         else:
             self.round_blocked = False
         self.switch_players()
 
-    def move(self):
-        player = self.players[self.current_player_index]
-        opponent = self.get_opponent(player)
-
-        pit = player.select_pit(self.board, self.get_legal_moves(player))
-        seeds = self.board[pit]
-
-        self.board[pit] = 0
-        while seeds > 0:
-            pit = (pit + 1) % len(self.board)
-            if not pit == opponent.bank:
-                self.board[pit] += 1
-                seeds -= 1
-
+    def capture(self, pit, player):
         first, last = self.get_player_pits(player)
         if first <= pit <= last and self.board[pit] == 1:
             opposite_pit = self.get_opposite_pit(pit)
             self.board[player.bank] += self.board[opposite_pit]
             self.board[opposite_pit] = 0
-        elif pit == player.bank:
-            self.round_blocked = True
 
     def switch_players(self):
         self.current_player_index = (self.current_player_index + 1) % 2
@@ -72,10 +95,16 @@ class Mancala:
 
     def is_move_possible(self):
         player = self.players[self.current_player_index]
-        return self.get_legal_moves(player)
+        if self.get_legal_moves(player):
+            return True
+        else:
+            return False
 
     def get_opponent(self, player):
         return self.players[player.nr % 2]
+
+    def get_player_index(self, player):
+        return (player.nr + 1) % 2
 
     def get_opposite_pit(self, pit):
         return self.pits * 2 - pit
@@ -93,6 +122,10 @@ class Mancala:
 
         for pit in range(first, last + 1):
             self.board[pit] = 0
+
+    def score(self, player):
+        score = self.board[player.bank] - self.board[self.get_opponent(player).bank]
+        return score
 
     def announce_winner(self):
         points = (self.get_points(self.players[0]), self.get_points(self.players[1]))

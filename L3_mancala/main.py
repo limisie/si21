@@ -12,8 +12,8 @@ from player import *
 
 def main():
     player1 = Player('kaja')
-    player2 = Player('ai', mode=MIN_MAX)
-    game = Mancala(player1, player2)
+    player2 = Player('minmax3', mode=MIN_MAX, level=3)
+    game = Mancala(player1, player2, first_move=RANDOM)
     print(game)
     game.run()
     print(game)
