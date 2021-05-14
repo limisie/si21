@@ -47,7 +47,7 @@ class MinMax(PitSelector):
         old_game = deepcopy(game)
         children = game.get_legal_moves(player)
         opponent = game.get_opponent(player)
-        if player == self.player:
+        if player.is_equal(self.player):
             best_score = -math.inf
         else:
             best_score = math.inf
@@ -56,7 +56,8 @@ class MinMax(PitSelector):
             game = deepcopy(old_game)
             game.move(child)
             score = self.min_max(game, depth - 1, opponent)
-            if player == self.player:
+            # print(f'{depth-1}: {score}')
+            if player.is_equal(self.player):
                 if score > best_score:
                     best_score = score
                     if depth == self.level:

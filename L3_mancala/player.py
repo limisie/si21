@@ -29,5 +29,11 @@ class Player:
     def select_pit(self, moves):
         return self.pit_selector.select(moves)
 
+    def is_equal(self, player):
+        equal = False
+        if self.name == player.name and self.nr == player.nr:
+            equal = True
+        return equal
+
     def __str__(self):
         return f'{self.name}'

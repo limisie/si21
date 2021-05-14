@@ -47,7 +47,7 @@ class Mancala:
             move = player.select_pit(moves)
 
         self.move(move)
-        print(f'{player}: {move}')
+        print(f'MOVE: {player}: {move}')
         print(self)
 
     def move(self, pit):
@@ -87,10 +87,13 @@ class Mancala:
 
     def get_legal_moves(self, player):
         moves = []
-        first, last = self.get_player_pits(player)
-        for pit in range(first, last + 1):
-            if self.board[pit] > 0:
-                moves.append(pit)
+        if self.round_blocked:
+            moves.append(-1)
+        else:
+            first, last = self.get_player_pits(player)
+            for pit in range(first, last + 1):
+                if self.board[pit] > 0:
+                    moves.append(pit)
         return moves
 
     def is_move_possible(self):
@@ -124,8 +127,7 @@ class Mancala:
             self.board[pit] = 0
 
     def score(self, player):
-        score = self.board[player.bank] - self.board[self.get_opponent(player).bank]
-        return score
+        return self.board[player.bank] - self.board[self.get_opponent(player).bank]
 
     def announce_winner(self):
         points = (self.get_points(self.players[0]), self.get_points(self.players[1]))
