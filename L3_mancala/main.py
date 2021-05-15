@@ -9,8 +9,8 @@ from player import *
 # player1
 
 def main():
-    player1 = Player('minmax2', mode=MIN_MAX, level=2)
-    player2 = Player('minmax4', mode=MIN_MAX, level=3)
+    player1 = MinMax('minmax2', level=2)
+    player2 = MinMax('minmax3', level=3)
     game = Mancala(player1, player2)
     print(game)
     game.run()

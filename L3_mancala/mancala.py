@@ -24,7 +24,10 @@ class Mancala:
         self.round_blocked = False
 
     def end_condition(self):
-        return not self.is_move_possible() and not self.round_blocked
+        end = not self.is_move_possible() and not self.round_blocked
+        if end:
+            self.count_points()
+        return end
 
     def run(self):
         while not self.end_condition():
@@ -33,7 +36,7 @@ class Mancala:
             else:
                 self.round_blocked = False
                 self.switch_players()
-        self.count_points()
+        # self.count_points()
         self.announce_winner()
 
     def turn(self):
@@ -44,7 +47,7 @@ class Mancala:
             move = moves[random.randint(0, len(moves))]
             self.first_move = False
         else:
-            move = player.select_pit(moves)
+            move = player.select(moves)
 
         self.move(move)
         print(f'MOVE: {player}: {move}')
@@ -121,7 +124,7 @@ class Mancala:
 
         first, last = self.get_player_pits(opponent)
         extra_points = sum(self.board[first:last + 1])
-        self.board[player.bank] += extra_points
+        self.board[opponent.bank] += extra_points
 
         for pit in range(first, last + 1):
             self.board[pit] = 0
@@ -131,8 +134,11 @@ class Mancala:
 
     def announce_winner(self):
         points = (self.get_points(self.players[0]), self.get_points(self.players[1]))
-        print(f'The winner is {self.players[points.index(max(points))]}: {max(points)}p\n'
-              f'The loser is {self.players[points.index(min(points))]}: {min(points)}p\n')
+        if points[0] == points[1]:
+            print('It\'s a tie!')
+        else:
+            print(f'The winner is {self.players[points.index(max(points))]}: {max(points)}p\n'
+                  f'The loser is {self.players[points.index(min(points))]}: {min(points)}p\n')
 
     def __str__(self):
         console_board = f'{self.players[1]}\n\t\t'
