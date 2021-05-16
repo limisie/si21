@@ -6,8 +6,8 @@ RANDOM = 1
 
 class Mancala:
     def __init__(self, player1, player2, pits=6, seed=4, first_move=DEFAULT, first_player=DEFAULT):
-        player1.setup(pits, self)
-        player2.setup((2 * pits) + 1, self)
+        player1.setup(1, pits, self)
+        player2.setup(2, (2 * pits) + 1, self)
         self.players = (player1, player2)
         self.pits = pits
         self.board = [seed] * pits + [0] + [seed] * pits + [0]

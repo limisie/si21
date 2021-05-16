@@ -1,24 +1,19 @@
 import math
+import time
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
-HUMAN = 0
-MIN_MAX = 1
-ALFA_BETA = 2
-
 
 class Player(ABC):
-    count = 0
 
     def __init__(self, name):
-        Player.count += 1
-        self.nr = self.count
-
         self.name = name
+        self.nr = -1
         self.game = None
         self.bank = -1
 
-    def setup(self, bank, game):
+    def setup(self, nr, bank, game):
+        self.nr = nr
         self.bank = bank
         self.game = game
 
@@ -30,6 +25,15 @@ class Player(ABC):
 
     @abstractmethod
     def select(self, moves):
+        pass
+
+    def alfa(self, alfa, beta, score):
+        return False
+
+    def beta(self, alfa, beta, score):
+        return False
+
+    def reset_alfa_beta(self):
         pass
 
     def __str__(self):
@@ -58,44 +62,90 @@ class MinMax(Player):
         self.level = level
         self.move = None
 
+        self.alfa_beta = False
+
+        self.nodes_visited = 1
+        self.visited_count = []
+        self.times = []
+
     def select(self, moves):
+        start_time = time.time()
+
         game = deepcopy(self.game)
         self.min_max(game, self.level, self)
+
+        self.save_stats(start_time)
         return self.move
 
     def min_max(self, game, depth, player):
-        if depth == 0 or game.end_condition():
-            return game.score(self)
+        return self.max(game, depth, player)
 
-        old_game = game
-        children = game.get_legal_moves(player)
-        opponent = game.get_opponent(player)
-        if player.is_equal(self):
-            best_score = -math.inf
-        else:
-            best_score = math.inf
+    def min(self, old_game, depth, player, alfa=-math.inf, beta=math.inf):
+        if depth == 0 or old_game.end_condition():
+            return old_game.score(self)
+
+        children = old_game.get_legal_moves(player)
+        opponent = old_game.get_opponent(player)
+        best_score = math.inf
 
         for child in children:
+            self.nodes_visited += 1
             game = deepcopy(old_game)
             game.move(child)
-            score = self.min_max(game, depth - 1, opponent)
-            # print(f'{depth-1}: {score}')
-            if player.is_equal(self):
-                if score > best_score:
-                    best_score = score
-                    if depth == self.level:
-                        self.move = child
-            else:
-                if score < best_score:
-                    best_score = score
-                    if depth == self.level:
-                        self.move = child
+            score = self.max(game, depth - 1, opponent, alfa, beta)
+            print(f'{depth - 1}: {score}')
+            if score < best_score:
+                best_score = score
+                if depth == self.level:
+                    self.move = child
+            if self.beta(alfa, beta, score):
+                break
         return best_score
 
+    def max(self, old_game, depth, player, alfa=-math.inf, beta=math.inf):
+        if depth == 0 or old_game.end_condition():
+            return old_game.score(self)
 
-class AlfaBeta(Player):
-    def __init__(self, name):
-        super().__init__(name)
+        children = old_game.get_legal_moves(player)
+        opponent = old_game.get_opponent(player)
+        best_score = -math.inf
 
-    def select(self, moves):
-        pass
+        for child in children:
+            self.nodes_visited += 1
+            game = deepcopy(old_game)
+            game.move(child)
+            score = self.min(game, depth - 1, opponent, alfa, beta)
+            print(f'{depth - 1}: {score}')
+            if score > best_score:
+                best_score = score
+                if depth == self.level:
+                    self.move = child
+            if self.alfa(alfa, beta, score):
+                break
+        return best_score
+
+    def save_stats(self, start_time):
+        end_time = time.time()
+        self.times.append(end_time - start_time)
+        self.visited_count.append(self.nodes_visited)
+        self.nodes_visited = 1
+        self.reset_alfa_beta()
+
+
+class AlfaBeta(MinMax):
+    def __init__(self, name, level):
+        super().__init__(name, level)
+
+    def alfa(self, alfa, beta, score):
+        do_break = False
+        alfa = max(alfa, score)
+        if alfa >= beta:
+            do_break = True
+        return do_break
+
+    def beta(self, alfa, beta, score):
+        do_break = False
+        beta = min(beta, score)
+        if beta <= alfa:
+            do_break = True
+        return do_break
