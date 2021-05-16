@@ -28,13 +28,10 @@ class Player(ABC):
         pass
 
     def alfa(self, alfa, beta, score):
-        return False
+        return False, 0, 0
 
     def beta(self, alfa, beta, score):
-        return False
-
-    def reset_alfa_beta(self):
-        pass
+        return False, 0, 0
 
     def __str__(self):
         return f'{self.name}'
@@ -62,10 +59,8 @@ class MinMax(Player):
         self.level = level
         self.move = None
 
-        self.alfa_beta = False
-
-        self.nodes_visited = 1
-        self.visited_count = []
+        self.visited_count = 1
+        self.nodes_visited = []
         self.times = []
 
     def select(self, moves):
@@ -89,7 +84,7 @@ class MinMax(Player):
         best_score = math.inf
 
         for child in children:
-            self.nodes_visited += 1
+            self.visited_count += 1
             game = deepcopy(old_game)
             game.move(child)
             score = self.max(game, depth - 1, opponent, alfa, beta)
@@ -98,7 +93,8 @@ class MinMax(Player):
                 best_score = score
                 if depth == self.level:
                     self.move = child
-            if self.beta(alfa, beta, score):
+            prune, alfa, beta = self.beta(alfa, beta, score)
+            if prune:
                 break
         return best_score
 
@@ -111,7 +107,7 @@ class MinMax(Player):
         best_score = -math.inf
 
         for child in children:
-            self.nodes_visited += 1
+            self.visited_count += 1
             game = deepcopy(old_game)
             game.move(child)
             score = self.min(game, depth - 1, opponent, alfa, beta)
@@ -120,16 +116,16 @@ class MinMax(Player):
                 best_score = score
                 if depth == self.level:
                     self.move = child
-            if self.alfa(alfa, beta, score):
+            prune, alfa, beta = self.alfa(alfa, beta, score)
+            if prune:
                 break
         return best_score
 
     def save_stats(self, start_time):
         end_time = time.time()
         self.times.append(end_time - start_time)
-        self.visited_count.append(self.nodes_visited)
-        self.nodes_visited = 1
-        self.reset_alfa_beta()
+        self.nodes_visited.append(self.visited_count)
+        self.visited_count = 1
 
 
 class AlfaBeta(MinMax):
@@ -137,15 +133,15 @@ class AlfaBeta(MinMax):
         super().__init__(name, level)
 
     def alfa(self, alfa, beta, score):
-        do_break = False
+        prune = False
         alfa = max(alfa, score)
         if alfa >= beta:
-            do_break = True
-        return do_break
+            prune = True
+        return prune, alfa, beta
 
     def beta(self, alfa, beta, score):
-        do_break = False
+        prune = False
         beta = min(beta, score)
         if beta <= alfa:
-            do_break = True
-        return do_break
+            prune = True
+        return prune, alfa, beta
