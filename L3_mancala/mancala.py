@@ -54,6 +54,8 @@ class Mancala:
         print(self)
 
     def move(self, pit):
+        catch = False
+
         if not self.round_blocked:
             player = self.players[self.current_player_index]
             opponent = self.get_opponent(player)
@@ -65,7 +67,7 @@ class Mancala:
                     self.board[pit] += 1
                     seeds -= 1
 
-            self.capture(pit, player)
+            catch = self.capture(pit, player)
 
             if pit == player.bank:
                 self.round_blocked = True
@@ -73,12 +75,18 @@ class Mancala:
             self.round_blocked = False
         self.switch_players()
 
+        return self.round_blocked, catch
+
     def capture(self, pit, player):
+        catch = False
         first, last = self.get_player_pits(player)
         if first <= pit <= last and self.board[pit] == 1:
             opposite_pit = self.get_opposite_pit(pit)
+            if self.board[opposite_pit] != 0:
+                catch = True
             self.board[player.bank] += self.board[opposite_pit]
             self.board[opposite_pit] = 0
+        return catch
 
     def switch_players(self):
         self.current_player_index = (self.current_player_index + 1) % 2

@@ -54,10 +54,13 @@ class Human(Player):
 
 
 class MinMax(Player):
-    def __init__(self, name, level):
+    def __init__(self, name, level, earner=0, acer=0):
         super().__init__(name)
         self.level = level
         self.move = None
+
+        self.earner = earner
+        self.acer = acer
 
         self.visited_count = 1
         self.nodes_visited = []
@@ -86,9 +89,13 @@ class MinMax(Player):
         for child in children:
             self.visited_count += 1
             game = deepcopy(old_game)
-            game.move(child)
+            earn, ace = game.move(child)
             score = self.max(game, depth - 1, opponent, alfa, beta)
-            print(f'{depth - 1}: {score}')
+            if player.earner and earn:
+                score -= player.earner
+            if player.acer and ace:
+                score -= player.acer
+            # print(f'{depth - 1}: {score}')
             if score < best_score:
                 best_score = score
                 if depth == self.level:
@@ -109,9 +116,13 @@ class MinMax(Player):
         for child in children:
             self.visited_count += 1
             game = deepcopy(old_game)
-            game.move(child)
+            earn, ace = game.move(child)
             score = self.min(game, depth - 1, opponent, alfa, beta)
-            print(f'{depth - 1}: {score}')
+            if player.earner and earn:
+                score += player.earner
+            if player.acer and ace:
+                score += player.acer
+            # print(f'{depth - 1}: {score}')
             if score > best_score:
                 best_score = score
                 if depth == self.level:
@@ -129,8 +140,8 @@ class MinMax(Player):
 
 
 class AlfaBeta(MinMax):
-    def __init__(self, name, level):
-        super().__init__(name, level)
+    def __init__(self, name, level, earner=0, acer=0):
+        super().__init__(name, level, earner, acer)
 
     def alfa(self, alfa, beta, score):
         prune = False
