@@ -1,4 +1,6 @@
 from analysis import *
+from classifiers import multinomialNB, linearSVC
+from preprocessing import *
 
 DATA_PATH = "./scaledata"
 CLASS_COUNT = 3
@@ -15,4 +17,7 @@ def plot_analyses(texts, labels):
 
 if __name__ == '__main__':
     texts, labels = read_files(DATA_PATH, CLASS_COUNT)
-    plot_analyses(texts, labels)
+    # plot_analyses(texts, labels)
+
+    X_train, X_test, y_train, y_test = train_test_split(texts, labels, test_size=0.2)
+    linearSVC(X_train, X_test, y_train, y_test)

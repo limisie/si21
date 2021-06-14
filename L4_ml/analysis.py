@@ -1,34 +1,7 @@
-import os
 import statistics
 import string
 from sklearn.feature_extraction.text import CountVectorizer
 import matplotlib.pyplot as plt
-
-
-def _get_label_file_name(classes):
-    if classes == 4:
-        return "label.4class"
-    else:
-        return "label.3class"
-
-
-def read_files(dir_path, classes=3):
-    label_file_name = _get_label_file_name(classes)
-    dirs = [x[0] for x in os.walk(dir_path)][1:]
-
-    texts = []
-    labels = []
-
-    for d in dirs:
-        for file in os.listdir(d):
-            if file.startswith("subj"):
-                text_file = open(os.path.join(d, file), "r")
-                texts.extend(text_file.read().splitlines())
-            if file.startswith(label_file_name):
-                label_file = open(os.path.join(d, file), "r")
-                labels.extend([int(label) for label in label_file.read().splitlines()])
-
-    return texts, labels
 
 
 def get_label_texts(label, labels, texts):
